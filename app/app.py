@@ -12,9 +12,9 @@ st.set_page_config(page_title="Sea Trials - Streamlit", layout="wide")
 st.title("해상 시운전 비용 분석")
 
 try:
-    df = pd.read_csv('pre_test_fin.csv', encoding='utf-8')
+    df = pd.read_csv('app/pre_test_fin.csv', encoding='utf-8')
 except UnicodeDecodeError:
-    df = pd.read_csv('pre_test_fin.csv', encoding='cp949')
+    df = pd.read_csv('app/pre_test_fin.csv', encoding='cp949')
 
 df['Date'] = pd.to_datetime(df['Date'], format='%Y년 %m월', errors='coerce')
 
