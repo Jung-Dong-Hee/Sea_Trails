@@ -1,4 +1,4 @@
-# Sea_Trails
+# Sea Trials Cost Analyze
 
 ## Sea Trails
 A sea trial is the testing phase of a watercraft (including boats, ships, and submarines). It is also referred to as a "shakedown cruise" by many naval personnel. It is usually the last phase of construction and takes place on open water, and it can last from a few hours to many days.
@@ -36,5 +36,65 @@ Data was generated with careful consideration to reflect realistic scenarios and
 | **HFO, MFO**       | The amount of fuel used by the ship.                                                                 |
 | **선장_투입~노무_안전_투입** | Represents the personnel involved in the sea trial.                                          |
 
-## Analyze
+# Analyze
 
+## 1. Number of sea trials tests per month
+Analyzing the number of monthly test runs for normal operation and delayed operation
+<figure>
+  <p align="center">
+    <img src="Fig/Number of sea trials tests per month.png" alt="Trulli" style="width:80%">
+    <figcaption align = "center"></figcaption>
+  </p>
+</figure>
+
+## 2. Cost analysis by category
+Analysis of fuel costs, labor costs, other costs, and total costs for normal operation, delayed operation, and total operation of the ship type.
+<figure>
+  <p align="center">
+    <img src="Fig/Cost analysis by category.png" alt="Trulli" style="width:80%">
+    <figcaption align = "center"></figcaption>
+  </p>
+</figure>
+
+## 3.1 Cost analysis by normal/delayed items
+Analysis of total costs, labor costs, and fuel costs for normal, delayed, and total operation of a ship type over time.
+
+Total cost
+<figure>
+  <p align="center">
+    <img src="Fig/Total Cost TS.png" alt="Trulli" style="width:80%">
+    <figcaption align = "center"></figcaption>
+  </p>
+</figure>
+
+Labor cost
+<figure>
+  <p align="center">
+    <img src="Fig/Labor Cost Ts.png" alt="Trulli" style="width:80%">
+    <figcaption align = "center"></figcaption>
+  </p>
+</figure>
+
+Fuel cost
+<figure>
+  <p align="center">
+    <img src="Fig/Fuel Cost Ts.png" alt="Trulli" style="width:80%">
+    <figcaption align = "center"></figcaption>
+  </p>
+</figure>
+
+## 3.2 Cost Forecast(To be added)
+## 3.3 Cause Analysis Report(To be added)
+
+## 4. Radar Chart
+Analysis by comparing the ratio between normal and delayed operation of fuel costs, sea trials navigator costs, ship maintenance & management team costs, total costs, and other costs.
+
+<figure>
+  <p align="center">
+    <img src="Fig/Radar Chart.png" alt="Trulli" style="width:80%">
+    <figcaption align = "center"></figcaption>
+  </p>
+</figure>
+
+# Cite
+https://sea-trails.streamlit.app/
