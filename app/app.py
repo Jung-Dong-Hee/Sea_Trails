@@ -8,7 +8,7 @@ import re
 
 plt.style.use('ggplot')
 
-st.set_page_config(page_title="Sea Trials - Streamlit", layout="wide")
+st.set_page_config(page_title="Sea Trials - Streamlit", layout="centered")
 
 st.title("해상 시운전 비용 분석")
 
