@@ -302,19 +302,3 @@ else:
     ratios = calculate_cost_ratios(df_filtered)
 
     plot_radar_chart(ratios)
-
-    st.write("### PDF 저장")
-    if st.button("이 페이지를 PDF로 저장"):
-        try:
-            pdf_options = {
-                'page-size': 'A4',
-                'encoding': 'UTF-8',
-                'enable-local-file-access': None
-            }
-
-            url = st.get_option('https://sea-trails.streamlit.app/')
-            pdfkit.from_url(url, 'output.pdf', options=pdf_options)
-
-            st.success("PDF 파일이 성공적으로 저장되었습니다. output.pdf")
-        except Exception as e:
-            st.error(f"PDF 변환 중 오류가 발생했습니다: {e}")
