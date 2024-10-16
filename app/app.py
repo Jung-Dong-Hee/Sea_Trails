@@ -92,7 +92,7 @@ else:
     st.write("전체 총합: ", total_counts.sum())
 
     st.write("### 02. 항목별 비용 분석")
-    st.write("선종의 정상 운영, 지연 운영, Total 운영의 유류비, 인건비, 기타 경비, 총 경비 분석")
+    st.write("선종의 정상 운영, 지연 운영, Total 운영의 유류비, 항해사비, 노무비, 기타 경비, 총 경비 분석")
     with st.expander("항목별 비용 분석 설명 보기"):
         st.write("**Fuel Cost**: 시운전 선박이 사용한 기름값을 나타냅니다.")
         st.write("**Labor Cost**: 시운전에 사용된 항해사 및 노무원들의 인건비를 나타냅니다.")
@@ -208,7 +208,7 @@ else:
     st.pyplot(fig)
 
     st.write("### 04. 항목별 비용 특성 분석 (Radar Chart)")
-    st.write("유류비, 인건비, 총 경비, 기타비용의 정상 운영과 지연 운영 간의 비율을 비교하여 분석")
+    st.write("유류비, 항해사비,노무비, 총 경비, 기타비용의 정상 운영과 지연 운영 간의 비율을 비교하여 분석")
     with st.expander("Radar Chart 설명 보기"):
         st.write("#### 항목명 : Radar plot 에서 각 꼭지점")
         st.write("- Fuel Cost: 시운전 선박이 사용한 기름값을 나타냅니다.")
