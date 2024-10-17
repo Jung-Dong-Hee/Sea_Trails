@@ -240,15 +240,15 @@ else:
     st.write("유류비, 인건비, 총 경비, 기타비용의 정상 운영과 지연 운영 간의 비율을 비교하여 분석")
     with st.expander("Radar Chart 설명 보기"):
         st.write("#### 항목명 : Radar plot 에서 각 꼭지점")
-        st.write("Fuel Cost: 시운전 선박이 사용한 기름값을 나타냅니다.")
-        st.write("STN_C: Sea Trials Navigator Cost의 약자로 항해사비가 됩니다. 항해사비는 선장 비용, 타수 비용, 도선비, 임시항해 검사비, 자차 수정 비용이 포함된 금액입니다.")
-        st.write("SMMT_C: Ship Maintenance and Management Team의 약자로 노무비가 됩니다.")
-        st.write("Other Cost: 시운전 선박의 기타 경비를 나타냅니다. 기타 비용은 용도품 침구 및 물품, 예선료, 통선비, 양식, 한식이 포함된 금액입니다.")
-        st.write("Total Cost: 시운전 선박의 총경비를 나타냅니다.")
+        st.write("Fuel Cost: 시운전 선박이 사용한 유류비를 의미.")
+        st.write("STN_C: Sea Trials Navigator Cost의 약자로 항해사비를 의미. 항해사비는 선장 비용, 타수 비용, 도선비, 임시항해 검사비, 자차 수정 비용이 포함된 금액.")
+        st.write("SMMT_C: Ship Maintenance and Management Team의 약자로 노무비를 의미.")
+        st.write("Other Cost: 시운전 선박의 기타 경비를 의미. 기타 비용은 용도품 침구 및 물품, 예선료, 통선비, 양식, 한식 이 포함된 금액.")
+        st.write("Total Cost: 시운전 선박의 총경비를 의미.")
         st.write("#### 운영 결과")
-        st.write("**Normal**: 시운전 선박의 정상 운영을 의미합니다.")
-        st.write("**Delay**: 시운전 선박의 지연 운영을 의미합니다.")
-        st.write("**Total**: 시운전 선박의 모든 데이터를 의미합니다.")
+        st.write("**Normal**: 해당 시운전이 계획된 기간에 맞게 진행이 되었음을 의미.")
+        st.write("**Delay**: 해당 시운전이 계획된 기간(days)보다 지연이 되었음을 의미.")
+        st.write("**Total**: 시운전 선박의 모든 데이터를 의미.")
 
     def calculate_cost_ratios(df):
         cost_columns = ['유류비(\)', '항해사비', '노무원비용', '총 경비', '기타비용']
