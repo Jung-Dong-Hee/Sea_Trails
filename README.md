@@ -28,13 +28,14 @@ Data was generated with careful consideration to reflect realistic scenarios and
 ## Data Description
 | Feature            | Description                                                                                          |
 |--------------------|------------------------------------------------------------------------------------------------------|
-| **Date**           | Represents the year and month when the sea trial was conducted.                                      |
-| **지연 여부**        | Indicates whether there was a delay during the trial (normal operation / delayed operation).        |
-| **업체 타입**        | The type of trial operator (direct operation / cooperative operation).                              |
-| **선종**            | The specific type of ship.                                                                           |
-| **시운전 일수**      | The number of days of the sea trial.                                                                |
-| **HFO, MFO**       | The amount of fuel used by the ship.                                                                 |
-| **선장_투입~노무_안전_투입** | Represents the personnel involved in the sea trial.                                          |
+| **Date**           | The date of the trial operation.                                                                     |
+| **지연 여부**      | Whether a delay occurred during the trial operation. (Normal operation / Delayed operation)          |
+| **업체 타입**      | The type of company conducting the trial operation. (Direct = 직영, Cooperation = 협력)               |
+| **선종**           | The type of vessel on which the trial operation was conducted.                                       |
+| **시운전 일수**    | The actual duration of the trial operation. (Unit: Days)                                             |
+| **HFO**            | The amount of HFO used during the trial operation. (Unit: ℓ)                                         |
+| **MFO**            | The amount of MFO used during the trial operation. (Unit: ℓ)                                         |
+| **선장_투입~노무_안전_투입** | The number of personnel involved in the trial operation. (Unit: Persons)                   |
 
 # Analyze
 
