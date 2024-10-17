@@ -3,8 +3,6 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
 from math import pi
-import pdfkit
-import re
 
 plt.style.use('ggplot')
 
@@ -45,13 +43,14 @@ end_date = f"{end_year}-{end_month}-01"
 df_filtered = df[(df['Date'] >= start_date) & (df['Date'] <= end_date) & (df['선종'] == ship_type)]
 
 with st.expander("데이터 설명 보기"):
-    st.write("**Date**: 시운전이 진행된 연도와 월을 나타냅니다.")
-    st.write("**지연 여부**: 시운전 중 지연이 발생했는지 여부를 나타냅니다. (정상 운영 / 지연 운영)")
-    st.write("**업체 타입**: 시운전 운영 업체의 타입을 나타냅니다. (직접 운영 / 협력 운영)")
-    st.write("**선종**: 특정 선박의 유형을 나타냅니다.")
-    st.write("**시운전 일수** : 선박의 해상 시운전 일수를 나타냅니다.")
-    st.write("**HFO,MFO** : 선박이 사용한 기름 양을 나타냅니다.")
-    st.write("**선장_투입~노무_안전_투입**: 해상 시운전에 투입된 인원을 나타냅니다.")
+    st.write("**Date**: 시운전 진행 일자.")
+    st.write("**지연 여부**: 시운전 중 지연 발생 여부. (정상 운영 / 지연 운영)")
+    st.write("**업체 타입**: 시운전 시행 업체의 타입.  (Direct = 직영, Cooperation = 협력)")
+    st.write("**선종**: 시운전을 실시한 선박의 유형.")
+    st.write("**시운전 일수** : 시운전의 실제 기간. (단위: Days)")
+    st.write("**HFO** : 시운전에서 사용한 HFO의 양. (단위: ℓ )")
+    st.write("**MFO** : 시운전에서 사용한 MFO의 양. (단위: ℓ )")
+    st.write("**선장_투입~노무_안전_투입**: 시운전에 참여한 해당 인원수. (단위: 명)")
 
 st.write("### 데이터 테이블")
 st.dataframe(df_filtered)
@@ -62,8 +61,8 @@ else:
     st.write("### 01. 월별 해상 시운전 테스트 횟수")
     st.write("정상 운영, 지연 운영 월별 시운전 횟수를 분석")
     with st.expander("정상/지연 항목별 비용 분석 설명 보기"):
-        st.write("**Normal**: 시운전 선박의 정상 운영을 의미합니다.")
-        st.write("**Delayed**: 시운전 선박의 지연 운영을 의미합니다.")
+        st.write("**Normal**: 해당 시운전이 계획된 기간에 맞게 진행이 되었음을 의미.")
+        st.write("**Delayed**: 해당 시운전이 계획된 기간(days)보다 지연이 되었음을 의미.")
 
     df_filtered['Month'] = df_filtered['Date'].dt.to_period('M')
     status_counts = df_filtered.groupby(['Month', '지연 여부']).size().unstack(fill_value=0)
@@ -86,27 +85,46 @@ else:
 
     st.pyplot(fig)
 
-    st.write("#### 정상, 지연, 총합 카운트")
-    st.write("정상 운영 총합: ", normal_counts.sum())
-    st.write("지연 운영 총합: ", delayed_counts.sum())
-    st.write("전체 총합: ", total_counts.sum())
+    with st.expander("시운전 테스트 횟수 보기"):
+        table_counts = pd.DataFrame({
+            "월": status_counts.index.astype(str),
+            "Normal": normal_counts.values,
+            "Delay": delayed_counts.values,
+            "Total": total_counts.values
+        })
+    with st.expander("시운전 테스트 횟수 보기"):
+            st.markdown("### 월별 시운전 테스트 횟수 (단위: 건)")
+            st.table(table_counts)
+    
+    with st.expander("카운트 상세 보기"):
+        count_data = {
+            "상태": ["Normal", "Delay", "Total"],
+            "카운트": [normal_counts.sum(), delayed_counts.sum(), total_counts.sum()]
+        }
+        df_counts = pd.DataFrame(count_data)
+    with st.expander("카운트 상세 보기"):
+            st.markdown("### 정상, Delay, 총합 카운트 (단위: 건)")
+            st.table(count_data)
 
     st.write("### 02. 항목별 비용 분석")
-    st.write("선종의 정상 운영, 지연 운영, Total 운영의 유류비, 항해사비, 노무비, 기타 경비, 총 경비 분석")
+    st.write("선종의 정상 운영, 지연 운영, Total 운영의 유류비, 인건비, 기타 경비, 총 경비 분석")
     with st.expander("항목별 비용 분석 설명 보기"):
-        st.write("**Fuel Cost**: 시운전 선박이 사용한 기름값을 나타냅니다.")
-        st.write("**Labor Cost**: 시운전에 사용된 항해사 및 노무원들의 인건비를 나타냅니다.")
-        st.write("**Other Cost** : 시운전 선박의 기타 경비를 나타냅니다. 기타 비용은 용도품 침구 및 물품, 예선료, 통선비, 양식, 한식 이 포함된 금액입니다.")
-        st.write("**Total Cost**: 시운전 선박의 총경비를 나타냅니다.")
-        st.write("**Total** : 시운전 선박의 모든 데이터를 의미합니다.")
-        st.write("**Normal**: 시운전 선박의 정상 운영을 의미합니다.")
-        st.write("**Delayed**: 시운전 선박의 지연 운영을 의미합니다.")
+        st.write("#### 항목명")
+        st.write("**Fuel Cost**: 시운전 선박이 사용한 유류비를 의미.")
+        st.write("**STN_C**: Sea Trials Navigator Cost의 약자로 항해사비를 의미. 항해사비는 선장 비용, 타수 비용, 도선비, 임시항해 검사비, 자차 수정 비용이 포함된 금액.")
+        st.write("**SMMT_C**: Ship Maintenance and Management Team의 약자로 노무비를 의미.")
+        st.write("**Other Cost** : 시운전 선박의 기타 경비를 의미. 기타 비용은 용도품 침구 및 물품, 예선료, 통선비, 양식, 한식 이 포함된 금액.")
+        st.write("**Total Cost**: 시운전 선박의 총경비를 의미.")
+        st.write("#### 운영 결과")
+        st.write("**Normal**: 해당 시운전이 계획된 기간에 맞게 진행이 되었음을 의미.")
+        st.write("**Delay**: 해당 시운전이 계획된 기간(days)보다 지연이 되었음을 의미.")
+        st.write("**Total**: 시운전 선박의 모든 데이터를 의미.")
 
     def convert_to_millions(value):
         return value / 1_000_000
 
     statuses = ['정상', '지연', '전체']
-    status_labels = {'전체': 'Total', '정상': 'Normal', '지연': 'Delayed'}
+    status_labels = {'전체': 'Total', '정상': 'Normal', '지연': 'Delay'}
 
     cost_types = ['유류비(\)', '항해사비', '노무원비용', '기타비용', '총 경비']
     cost_type_labels = {'유류비(\)': 'Fuel Cost', '항해사비': 'STN_Cost', '노무원비용': 'SMMT_Cost' , '기타비용': 'Other Cost', '총 경비': 'Total Cost'}
@@ -137,33 +155,43 @@ else:
     plt.tight_layout()
 
     st.pyplot(fig)
-    
-    with st.expander("비용 분석 결과 보기 (in Millons)"):
+
+    with st.expander("비용 분석 결과 보기"):
+        table_data = []
         for status in statuses:
-            st.write(f"**{status_labels[status]}**:")
-            st.write(f"- Fuel Cost: {data[status][0]:.2f}")
-            st.write(f"- Sea Trials Navigator Cost: {data[status][1]:.2f}")
-            st.write(f"- Ship Maintenance and Management Team: {data[status][2]:.2f}")
-            st.write(f"- Other Cost: {data[status][3]:.2f}")
-            st.write(f"- Total Cost: {data[status][4]:.2f}")
+            table_data.append({
+            "상태": status_labels[status],
+            "유류비": f"{data[status][0]:.2f}",
+            "항해사비": f"{data[status][1]:.2f}",
+            "노무원비용": f"{data[status][2]:.2f}",
+            "기타비용": f"{data[status][3]:.2f}",
+            "총 경비": f"{data[status][4]:.2f}"
+        })
+
+    df_table = pd.DataFrame(table_data)
+    
+    with st.expander("비용 분석 결과 보기"):
+        st.markdown("### 비용 분석 결과 (단위: 백만 원)")
+        st.table(df_table)
 
     st.write("### 03. 정상/지연 항목별 비용 분석")
     st.write("선종의 정상 운영, 지연 운영, Total 운영의 총 경비, 인건비, 유류비를 시간의 흐름에 따른 분석")
     with st.expander("정상/지연 항목별 비용 분석 설명 보기"):
-        st.write("**Total Cost**: 시운전 선박의 총경비를 나타냅니다.")
-        st.write("**Labor Cost**: 시운전에 사용된 항해사 및 노무원들의 인건비를 나타냅니다.")
-        st.write("**Fuel Cost**: 시운전 선박이 사용한 기름값을 나타냅니다.")
-        st.write("**Total** : 시운전 선박의 모든 데이터를 의미합니다.")
-        st.write("**Normal**: 시운전 선박의 정상 운영을 의미합니다.")
-        st.write("**Delayed**: 시운전 선박의 지연 운영을 의미합니다.")
-        
+        st.write("#### 항목명")
+        st.write("**Total Cost**: 시운전 선박의 총경비를 의미.")
+        st.write("**Labor Cost**: 시운전에 사용된 항해사 및 노무원들의 인건비를 의미.")
+        st.write("**Fuel Cost**: 시운전 선박이 사용한 유류비를 의미.")
+        st.write("#### 운영 결과")
+        st.write("**Total** : 시운전 선박의 모든 데이터를 의미.")
+        st.write("**Normal**: 해당 시운전이 계획된 기간에 맞게 진행이 되었음을 의미.")
+        st.write("**Delayed**: 해당 시운전이 계획된 기간(days)보다 지연이 되었음을 의미.")
+
     def create_labor_cost_column(df):
         df['인건비'] = df['선장비용'] + df['타수비용'] + df['노무원비용']
         return df
 
-    # 비용 계산
     df_filtered = create_labor_cost_column(df_filtered) 
-    
+
     df_normal = df_filtered[df_filtered['지연 여부'] == '정상']
     df_delay = df_filtered[df_filtered['지연 여부'] == '지연']
     df_total = df_filtered
@@ -208,18 +236,18 @@ else:
     st.pyplot(fig)
 
     st.write("### 04. 항목별 비용 특성 분석 (Radar Chart)")
-    st.write("유류비, 항해사비,노무비, 총 경비, 기타비용의 정상 운영과 지연 운영 간의 비율을 비교하여 분석")
+    st.write("유류비, 인건비, 총 경비, 기타비용의 정상 운영과 지연 운영 간의 비율을 비교하여 분석")
     with st.expander("Radar Chart 설명 보기"):
         st.write("#### 항목명 : Radar plot 에서 각 꼭지점")
-        st.write("- Fuel Cost: 시운전 선박이 사용한 기름값을 나타냅니다.")
-        st.write("- STN_C: Sea Trials Navigator Cost의 약자로 항해사비가 됩니다. 항해사비는 선장 비용, 타수 비용, 도선비, 임시항해 검사비, 자차 수정 비용이 포함된 금액입니다.")
-        st.write("- SMMT_C: Ship Maintenance and Management Team의 약자로 노무비가 됩니다.")
-        st.write("- Other Cost: 시운전 선박의 기타 경비를 나타냅니다. 기타 비용은 용도품 침구 및 물품, 예선료, 통선비, 양식, 한식이 포함된 금액입니다.")
-        st.write("- Total Cost: 시운전 선박의 총경비를 나타냅니다.")
+        st.write("Fuel Cost: 시운전 선박이 사용한 기름값을 나타냅니다.")
+        st.write("STN_C: Sea Trials Navigator Cost의 약자로 항해사비가 됩니다. 항해사비는 선장 비용, 타수 비용, 도선비, 임시항해 검사비, 자차 수정 비용이 포함된 금액입니다.")
+        st.write("SMMT_C: Ship Maintenance and Management Team의 약자로 노무비가 됩니다.")
+        st.write("Other Cost: 시운전 선박의 기타 경비를 나타냅니다. 기타 비용은 용도품 침구 및 물품, 예선료, 통선비, 양식, 한식이 포함된 금액입니다.")
+        st.write("Total Cost: 시운전 선박의 총경비를 나타냅니다.")
         st.write("#### 운영 결과")
-        st.write("- **Normal**: 시운전 선박의 정상 운영을 의미합니다.")
-        st.write("- **Delay**: 시운전 선박의 지연 운영을 의미합니다.")
-        st.write("- **Total**: 시운전 선박의 모든 데이터를 의미합니다.")
+        st.write("**Normal**: 시운전 선박의 정상 운영을 의미합니다.")
+        st.write("**Delay**: 시운전 선박의 지연 운영을 의미합니다.")
+        st.write("**Total**: 시운전 선박의 모든 데이터를 의미합니다.")
 
     def calculate_cost_ratios(df):
         cost_columns = ['유류비(\)', '항해사비', '노무원비용', '총 경비', '기타비용']
@@ -277,14 +305,14 @@ else:
         delayed_values += delayed_values[:1]
         total_values += total_values[:1]
 
-        fig, ax = plt.subplots(figsize=(4, 4), subplot_kw=dict(polar=True))
+        fig, ax = plt.subplots(figsize=(5, 5), subplot_kw=dict(polar=True))
 
         ax.set_theta_offset(pi / 2)
         ax.set_theta_direction(-1)
 
-        plt.xticks(angles[:-1], categories)
+        plt.xticks(angles[:-1], categories, fontsize=7, horizontalalignment='center')
         ax.set_rlabel_position(0)
-        plt.yticks([60, 80, 100, 125], ["60%", "80%", "100%", "125%"], color="grey", size=5)
+        plt.yticks([60, 80, 100, 125], ["60%", "80%", "100%", "125%"], color="grey", size=6)
         plt.ylim(60, 125)
 
         ax.plot(angles, total_values, linewidth=1, linestyle='solid', label='Total', color='#f15628')
@@ -294,9 +322,8 @@ else:
         ax.plot(angles, delayed_values, linewidth=1, linestyle='solid', label='Delay', color='#ffc81b')
         ax.fill(angles, delayed_values, alpha=0.1, color='#ffc81b')
 
-        plt.legend(loc='upper right', bbox_to_anchor=(0.05, 0.05))
-        plt.title('Radar chart by cost')
-
+        plt.legend(loc='upper right', bbox_to_anchor=(1.1, 1.1), fontsize=8)
+        plt.title('Radar Chart by Cost')
         st.pyplot(fig)
 
     ratios = calculate_cost_ratios(df_filtered)
