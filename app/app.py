@@ -104,7 +104,7 @@ else:
         }
         df_counts = pd.DataFrame(count_data)
     with st.expander("카운트 상세 보기"):
-            st.markdown("### 정상, Delay, 총합 카운트 (단위: 건)")
+            st.markdown("### 정상, 지연, 총합 카운트 (단위: 건)")
             st.table(count_data)
 
     st.write("### 02. 항목별 비용 분석")
