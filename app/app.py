@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from math import pi
 import re
+from sklearn.linear_model import LinearRegression
+import matplotlib.dates as mdates
 
 plt.style.use('ggplot')
 
@@ -59,6 +61,7 @@ if df_filtered.empty:
     st.write("선택한 기간 및 선박 유형에 대해 사용 가능한 데이터가 없습니다.")
 else:
 
+    # 시운전 테스트 횟수 분석
     st.write("### 01. 월별 해상 시운전 테스트 횟수")
     st.write("정상 운영, 지연 운영 월별 시운전 횟수를 분석")
     with st.expander("정상/지연 항목별 비용 분석 설명 보기"):
@@ -107,6 +110,7 @@ else:
             st.markdown("### 정상, 지연, 총합 카운트 (단위: 건)")
             st.table(count_data)
 
+    # 항목별 비용 분석
     st.write("### 02. 항목별 비용 분석")
     st.write("선종의 정상 운영, 지연 운영, Total 운영의 유류비, 인건비, 기타 경비, 총 경비 분석")
     with st.expander("항목별 비용 분석 설명 보기"):
@@ -175,6 +179,7 @@ else:
         st.markdown("### 비용 분석 결과 (단위: 백만 원)")
         st.table(df_table)
 
+    # 정상/지연 항목별 비용 분석
     st.write("### 03. 정상/지연 항목별 비용 분석")
     st.write("선종의 정상 운영, 지연 운영, Total 운영의 총 경비, 인건비, 유류비를 시간의 흐름에 따른 분석")
     with st.expander("정상/지연 항목별 비용 분석 설명 보기"):
@@ -236,7 +241,254 @@ else:
     plt.tight_layout()
     st.pyplot(fig)
 
-    st.write("### 04. 항목별 비용 특성 분석 (Radar Chart)")
+    # 총 경비 예측
+    st.write("### 04 총 경비 예측")
+    st.write("선종의 총 경비를 예측합니다. 총 경비를 예측하기 위해 각각의 항목들을 예측합니다.")
+
+    #인건비 예측
+    st.write("#### 1. 인건비 예측")
+    labor_cost_df = df_filtered.groupby('Date')['인건비'].mean().reset_index()
+    labor_cost_df['Date_ordinal'] = labor_cost_df['Date'].map(lambda x: x.toordinal())
+    X_labor = labor_cost_df[['Date_ordinal']]
+    y_labor = labor_cost_df['인건비']
+    labor_model = LinearRegression()
+    labor_model.fit(X_labor, y_labor)
+
+    future_dates = pd.date_range(start='2025-01-01', end='2025-12-01', freq='MS')
+    future_labor_df = pd.DataFrame({'Date': future_dates})
+    future_labor_df['Date_ordinal'] = future_labor_df['Date'].map(lambda x: x.toordinal())
+    future_labor_df['예측 인건비'] = labor_model.predict(future_labor_df[['Date_ordinal']])
+    future_labor_df['Date'] = future_labor_df['Date'].dt.strftime('%Y-%m')
+
+    predicted_labor_df = future_labor_df[['Date', '예측 인건비']]
+
+    with st.expander("인건비 예측 결과 테이블 보기"):
+        st.write("##### 인건비 예측 결과 (2025년 01월 ~ 2025년 12월)")
+        st.table(predicted_labor_df.reset_index(drop=True))
+    
+    labor_cost_df['Date'] = pd.to_datetime(labor_cost_df['Date'])
+    future_labor_df_plot = future_labor_df.copy()
+    future_labor_df_plot['Date'] = pd.to_datetime(future_labor_df_plot['Date'], format='%Y-%m')
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+    ax.plot(labor_cost_df['Date'], labor_cost_df['인건비'], label='labor cost')
+    ax.set_xlabel('Date')
+    ax.set_ylabel('Labor Cost')
+    ax.set_title(f'Changes in labor cost over time ({ship_type})')
+    ax.legend()
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+
+    st.pyplot(fig)
+
+    #기타 비용 예측
+    st.write("#### 2. 기타 비용 예측")
+
+    other_cost_df = df_filtered.groupby('Date')['기타비용'].mean().reset_index()
+    other_cost_df['Date_ordinal'] = other_cost_df['Date'].map(lambda x: x.toordinal())
+    X_other = other_cost_df[['Date_ordinal']]
+    y_other = other_cost_df['기타비용']
+    other_model = LinearRegression()
+    other_model.fit(X_other, y_other)
+
+    future_other_df = pd.DataFrame({'Date': future_dates})
+    future_other_df['Date_ordinal'] = future_other_df['Date'].map(lambda x: x.toordinal())
+    future_other_df['예측 기타비용'] = other_model.predict(future_other_df[['Date_ordinal']])
+    future_other_df['Date'] = future_other_df['Date'].dt.strftime('%Y-%m')
+    predicted_other_df = future_other_df[['Date', '예측 기타비용']]
+
+    with st.expander("기타 비용 예측 결과 테이블 보기"):
+        st.write("##### 기타 비용 예측 결과 (2025년 01월 ~ 2025년 12월)")
+        st.table(predicted_other_df.reset_index(drop=True))
+
+    other_cost_df['Date'] = pd.to_datetime(other_cost_df['Date'])
+
+    future_other_df_plot = future_other_df.copy()
+    future_other_df_plot['Date'] = pd.to_datetime(future_other_df_plot['Date'], format='%Y-%m')
+    fig, ax = plt.subplots(figsize=(12, 6))
+    ax.plot(other_cost_df['Date'], other_cost_df['기타비용'], label='other cost')
+
+    ax.set_xlabel('Date')
+    ax.set_ylabel('Other Cost')
+    ax.set_title(f'Changes in other costs over time ({ship_type})')
+    ax.legend()
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    st.pyplot(fig)
+
+    #유류비 예측
+    st.write("#### 3. 유류비 예측")
+
+    fuel_price_df = pd.read_excel('app/연도별 유류비.xlsx')
+    fuel_price_df['Month'] = fuel_price_df['Month'].astype(str)
+    fuel_price_df['Date'] = pd.to_datetime(fuel_price_df['Year'].astype(str) + fuel_price_df['Month'], format='%Y%B')
+    fuel_price_df['Average_Fuel_Price'] = (fuel_price_df['HFO 단가(100L)'] + fuel_price_df['MFO 단가(100L)']) / 2
+
+    fuel_price_df = fuel_price_df[['Date', 'Average_Fuel_Price']]
+    fuel_price_df['Date_ordinal'] = fuel_price_df['Date'].map(lambda x: x.toordinal())
+    X_price = fuel_price_df[['Date_ordinal']]
+    y_price = fuel_price_df['Average_Fuel_Price']
+    price_model = LinearRegression()
+    price_model.fit(X_price, y_price)
+
+    future_dates = pd.date_range(start='2025-01-01', end='2025-12-01', freq='MS')
+    future_df = pd.DataFrame({'Date': future_dates})
+    future_df['Date_ordinal'] = future_df['Date'].map(lambda x: x.toordinal())
+    future_df['Predicted_Average_Fuel_Price'] = price_model.predict(future_df[['Date_ordinal']])
+	
+    df_filtered = df_filtered.merge(fuel_price_df[['Date', 'Average_Fuel_Price']], on='Date', how='left')
+    df_filtered['Fuel_Cost_per_Day'] = df_filtered['유류비(\)'] / df_filtered['시운전 일수']
+    df_filtered = df_filtered.dropna(subset=['Average_Fuel_Price', 'Fuel_Cost_per_Day'])
+    X_fuel = df_filtered[['Average_Fuel_Price']]
+    y_fuel = df_filtered['Fuel_Cost_per_Day']
+
+    fuel_cost_model = LinearRegression()
+    fuel_cost_model.fit(X_fuel, y_fuel)
+    future_df['Average_Fuel_Price'] = future_df['Predicted_Average_Fuel_Price']
+    future_df['Fuel_Cost_per_Day_Predicted'] = fuel_cost_model.predict(future_df[['Average_Fuel_Price']])
+    average_days = df_filtered['시운전 일수'].mean()
+    future_df['예측 유류비'] = future_df['Fuel_Cost_per_Day_Predicted'] * average_days
+    future_df['Date'] = future_df['Date'].dt.strftime('%Y-%m')
+    predicted_fuel_df = future_df[['Date', '예측 유류비']]
+
+    with st.expander("유류비 예측 결과 테이블 보기"):
+        st.write("##### 유류비 예측 결과 (2025년 01월 ~ 2025년 12월)")
+        st.table(predicted_fuel_df.reset_index(drop=True))
+
+    fuel_cost_df = df_filtered.groupby('Date')['유류비(\)'].mean().reset_index()
+    fuel_cost_df['Date'] = pd.to_datetime(fuel_cost_df['Date'])
+    future_df_plot = future_df.copy()
+    future_df_plot['Date'] = pd.to_datetime(future_df_plot['Date'], format='%Y-%m')
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    ax.plot(fuel_cost_df['Date'], fuel_cost_df['유류비(\)'], label='fuel cost')
+
+    ax.set_xlabel('Date')
+    ax.set_ylabel('Fuel Cost')
+    ax.set_title(f'Change in fuel cost over time ({ship_type})')
+    ax.legend()
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    st.pyplot(fig)
+
+    # 총 경비 예측
+    st.write("#### 4. 총 경비 예측")
+
+    predicted_labor_df = future_labor_df[['Date', '예측 인건비']]
+    predicted_other_df = future_other_df[['Date', '예측 기타비용']]
+    predicted_fuel_df = future_df[['Date', '예측 유류비']]
+
+    predicted_labor_df['Date'] = pd.to_datetime(predicted_labor_df['Date'], format='%Y-%m')
+    predicted_other_df['Date'] = pd.to_datetime(predicted_other_df['Date'], format='%Y-%m')
+    predicted_fuel_df['Date'] = pd.to_datetime(predicted_fuel_df['Date'], format='%Y-%m')
+    predicted_total_df = predicted_labor_df.merge(predicted_other_df, on='Date')
+    predicted_total_df = predicted_total_df.merge(predicted_fuel_df, on='Date')
+
+    predicted_total_df['예측 총 경비'] = predicted_total_df['예측 인건비'] + predicted_total_df['예측 기타비용'] + predicted_total_df['예측 유류비']
+    predicted_total_df['Date'] = predicted_total_df['Date'].dt.strftime('%Y-%m')
+    predicted_total_cost_df = predicted_total_df[['Date', '예측 총 경비']]
+
+    with st.expander("총 경비 예측 결과 테이블 보기"):
+        st.write("##### 총 경비 예측 결과 (2025년 01월 ~ 2025년 12월)")
+        st.table(predicted_total_cost_df.reset_index(drop=True))
+	    
+    total_cost_df = df_filtered.groupby('Date')['총 경비'].mean().reset_index()
+    total_cost_df['Date'] = pd.to_datetime(total_cost_df['Date'])
+    predicted_total_df_plot = predicted_total_df.copy()
+    predicted_total_df_plot['Date'] = pd.to_datetime(predicted_total_df_plot['Date'], format='%Y-%m')
+    combined_total_cost_df = pd.concat([total_cost_df[['Date', '총 경비']], predicted_total_df_plot[['Date', '예측 총 경비']].rename(columns={'예측 총 경비': '총 경비'})], ignore_index=True)
+    combined_total_cost_df.sort_values('Date', inplace=True)
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    ax.plot(total_cost_df['Date'], total_cost_df['총 경비'], label='Total cost')
+    ax.set_xlabel('Date')
+    ax.set_ylabel('Total Cost')
+    ax.set_title(f'Changes in total cost over time ({ship_type})')
+    ax.legend()
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+
+    st.pyplot(fig)
+
+    # 원인 분석
+    st.write("### 05. 원인 분석")
+    st.write("#### 2024년 평균 대비 2025년의 시운전 예측 비용을 원인 분석 합니다.")
+
+    months = [f"{i}월" for i in range(1, 13)]
+    selected_month = st.selectbox("2025년 예측 하고 싶은 월을 선택해주세요.", months, index=0)
+    selected_month_num = int(selected_month.replace('월', ''))
+    df_2024 = df_filtered[df_filtered['Date'].dt.year == 2024]
+
+    if df_2024.empty:
+        st.write("선택한 선종의 2024년 데이터가 없습니다.")
+    else:
+        average_2024_labor = df_2024['인건비'].mean()
+        average_2024_other = df_2024['기타비용'].mean()
+        average_2024_fuel = df_2024['유류비(\)'].mean()
+
+        predicted_labor_df['Date'] = pd.to_datetime(predicted_labor_df['Date'], format='%Y-%m')
+        labor_cost_2025_row = predicted_labor_df[predicted_labor_df['Date'].dt.month == selected_month_num]
+        if labor_cost_2025_row.empty:
+            st.write(f"선택한 월의 인건비 예측 데이터가 없습니다.")
+            labor_cost_2025 = None
+        else:
+            labor_cost_2025 = labor_cost_2025_row['예측 인건비'].values[0]
+
+        predicted_other_df['Date'] = pd.to_datetime(predicted_other_df['Date'], format='%Y-%m')
+        other_cost_2025_row = predicted_other_df[predicted_other_df['Date'].dt.month == selected_month_num]
+        if other_cost_2025_row.empty:
+            st.write(f"선택한 월의 기타비용 예측 데이터가 없습니다.")
+            other_cost_2025 = None
+        else:
+            other_cost_2025 = other_cost_2025_row['예측 기타비용'].values[0]
+
+        predicted_fuel_df['Date'] = pd.to_datetime(predicted_fuel_df['Date'], format='%Y-%m')
+        fuel_cost_2025_row = predicted_fuel_df[predicted_fuel_df['Date'].dt.month == selected_month_num]
+        if fuel_cost_2025_row.empty:
+            st.write(f"선택한 월의 유류비 예측 데이터가 없습니다.")
+            fuel_cost_2025 = None
+        else:
+            fuel_cost_2025 = fuel_cost_2025_row['예측 유류비'].values[0]
+
+        if None in [labor_cost_2025, other_cost_2025, fuel_cost_2025]:
+            st.write("예측 비용 데이터가 부족하여 결과를 표시할 수 없습니다.")
+        else:
+            labor_increase_rate = ((labor_cost_2025 - average_2024_labor) / average_2024_labor * 100) if average_2024_labor != 0 else None
+            other_increase_rate = ((other_cost_2025 - average_2024_other) / average_2024_other * 100) if average_2024_other != 0 else None
+            fuel_increase_rate = ((fuel_cost_2025 - average_2024_fuel) / average_2024_fuel * 100) if average_2024_fuel != 0 else None
+
+            def format_increase_rate(rate):
+                return f"{rate:.2f}%" if rate is not None else "N/A"
+            result_df = pd.DataFrame({
+                '항목': ['인건비', '기타 비용', '유류비'],
+                '2024년 평균 비용': [average_2024_labor, average_2024_other, average_2024_fuel],
+                f'2025년 {selected_month} 예측 비용': [labor_cost_2025, other_cost_2025, fuel_cost_2025],
+                '상승률': [format_increase_rate(labor_increase_rate), format_increase_rate(other_increase_rate), format_increase_rate(fuel_increase_rate)]
+            })
+            def format_currency(value):
+                return f"{int(value):,}원" if not pd.isnull(value) else "N/A"
+
+            result_df['2024년 평균 비용'] = result_df['2024년 평균 비용'].apply(format_currency)
+            result_df[f'2025년 {selected_month} 예측 비용'] = result_df[f'2025년 {selected_month} 예측 비용'].apply(format_currency)
+
+            st.table(result_df)
+
+            increase_rates = [labor_increase_rate, other_increase_rate, fuel_increase_rate]
+            valid_increase_rates = [rate for rate in increase_rates if rate is not None]
+
+            if not valid_increase_rates:
+                st.write("상승률을 계산할 수 없습니다.")
+            else:
+                max_increase_rate = max(valid_increase_rates)
+                max_increase_index = increase_rates.index(max_increase_rate)
+                max_increase_item = result_df.loc[max_increase_index, '항목']
+
+                st.write(f"{ship_type} 선종의 {max_increase_item}가 전체 총 경비의 {max_increase_rate:.2f}% 상승으로 가장 큰 비중을 차지한 항목입니다.")
+	
+	
+    st.write("### 06. 항목별 비용 특성 분석 (Radar Chart)")
     st.write("유류비, 인건비, 총 경비, 기타비용의 정상 운영과 지연 운영 간의 비율을 비교하여 분석")
     with st.expander("Radar Chart 설명 보기"):
         st.write("#### 항목명 : Radar plot 에서 각 꼭지점")
