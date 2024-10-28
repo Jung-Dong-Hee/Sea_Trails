@@ -6,6 +6,7 @@ from math import pi
 import re
 from sklearn.linear_model import LinearRegression
 import matplotlib.dates as mdates
+from matplotlib.collections import LineCollection
 
 plt.style.use('ggplot')
 
