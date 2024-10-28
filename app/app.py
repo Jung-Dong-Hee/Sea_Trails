@@ -295,7 +295,7 @@ else:
     ax.legend(handles=[actual_patch, predicted_patch])
 
     ax.set_xlabel('Date')
-    ax.set_ylabel('인건비')
+    ax.set_ylabel('Labor cost')
     ax.set_title(f'Changes in labor cost over time ({ship_type})')
 
     plt.tight_layout()
@@ -360,7 +360,7 @@ else:
     ax.legend(handles=[actual_patch, predicted_patch])
 
     ax.set_xlabel('Date')
-    ax.set_ylabel('기타비용')
+    ax.set_ylabel('Other cost')
     ax.set_title(f'Changes in other costs over time ({ship_type})')
 
     plt.tight_layout()
@@ -447,7 +447,7 @@ else:
 	
     ax.legend(handles=[actual_patch, predicted_patch])
     ax.set_xlabel('Date')
-    ax.set_ylabel('유류비')
+    ax.set_ylabel('Fuel cost')
     ax.set_title(f'Change in fuel cost over time ({ship_type})')
 
     plt.tight_layout()
