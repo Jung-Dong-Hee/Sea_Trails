@@ -378,7 +378,7 @@ else:
     # 유류비 예측
     st.write("#### 3. 유류비 예측")
 
-    fuel_price_df = pd.read_excel('연도별 유류비.xlsx')
+    fuel_price_df = pd.read_excel('app/연도별 유류비.xlsx')
     fuel_price_df['Month'] = fuel_price_df['Month'].astype(str)
     fuel_price_df['Date'] = pd.to_datetime(fuel_price_df['Year'].astype(str) + fuel_price_df['Month'], format='%Y%B')
     fuel_price_df['Average_Fuel_Price'] = (fuel_price_df['HFO 단가(100L)'] + fuel_price_df['MFO 단가(100L)']) / 2
