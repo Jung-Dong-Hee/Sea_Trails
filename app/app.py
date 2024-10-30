@@ -785,8 +785,8 @@ predicted_total_cost_df_2025 = future_dates_df[future_dates_df['Date'].dt.year =
 predicted_total_cost_df_2025.rename(columns={'Date_str': 'Date', '총 경비': '예측 총 경비'}, inplace=True)
 
 with st.expander("총 경비 예측 결과 테이블 보기"):
-st.write("##### 총 경비 예측 결과 (2025년 01월 ~ 2025년 12월)")
-st.table(predicted_total_cost_df_2025.reset_index(drop=True))
+	st.write("##### 총 경비 예측 결과 (2025년 01월 ~ 2025년 12월)")
+	st.table(predicted_total_cost_df_2025.reset_index(drop=True))
 
 # 원인 분석
 st.write("### 05. 원인 분석")
