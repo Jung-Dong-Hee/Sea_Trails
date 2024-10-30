@@ -398,120 +398,118 @@ else:
         st.write("##### 기타 비용 예측 결과 (2025년 01월 ~ 2025년 12월)")
         st.table(predicted_other_df.reset_index(drop=True))
 
-    # 유류비 예측
-    st.header("3. 유류비 예측")
-    with st.expander("유류비 예측 파트 설명 보기"):
-        st.write("**설명**: 유류비 예측 파트의 경우 두 가지 파트로 나누어서 유류비를 예측하는 과정을 보여줍니다.")
-        st.write("#### 파트")
-        st.write("**유가**: 국제 원자재 시세에 기반한 HFO 시세 와 MFO 시세의 유가 데이터를 바탕으로 유가 가격을 예측합니다. 이 예측은 연도와 선종에 상관없이 미래의 유가를 예측합니다.")
-        st.write("**환율**: 국제 금융시장에서 형성된 원 달러 환율 및 원 유로 환율을 기반으로 환율을 예측합니다. 이 예측은 연도와 선종에 상관없이 미래의 환율을 예측합니다.")
+# 유류비 예측
+st.write("3. 유류비 예측")
 
-    fuel_price_df = pd.read_excel('app/연도별 유류비.xlsx')
+with st.expander("유류비 예측 파트 설명 보기"):
+    st.write("**설명**: 유류비 예측 파트의 경우 두 가지 파트로 나누어서 유류비를 예측하는 과정을 보여줍니다.")
+    st.write("#### 파트")
+    st.write("**유가**: 국제 원자재 시세에 기반한 HFO 시세 와 MFO 시세의 유가 데이터를 바탕으로 유가 가격을 예측합니다. 이 예측은 연도와 선종에 상관없이 미래의 유가를 예측합니다.")
+    st.write("**환율**: 국제 금융시장에서 형성된 원 달러 환율 및 원 유로 환율을 기반으로 환율을 예측합니다. 이 예측은 연도와 선종에 상관없이 미래의 환율을 예측합니다.")
 
-    fuel_price_df['Month'] = fuel_price_df['Month'].astype(str)
-    fuel_price_df['Date'] = pd.to_datetime(fuel_price_df['Year'].astype(str) + fuel_price_df['Month'], format='%Y%B')
+fuel_price_df = pd.read_excel('app/연도별 유류비.xlsx')
 
-    fuel_price_df['Average_Fuel_Price'] = (fuel_price_df['HFO 단가(100L)'] + fuel_price_df['MFO 단가(100L)']) / 2
+fuel_price_df['Month'] = fuel_price_df['Month'].astype(str)
+fuel_price_df['Date'] = pd.to_datetime(fuel_price_df['Year'].astype(str) + fuel_price_df['Month'], format='%Y%B')
 
-    fuel_price_df = fuel_price_df[['Date', 'Average_Fuel_Price']]
-    fuel_price_df['Date'] = pd.to_datetime(fuel_price_df['Date'])
+fuel_price_df['Average_Fuel_Price'] = (fuel_price_df['HFO 단가(100L)'] + fuel_price_df['MFO 단가(100L)']) / 2
 
-    fuel_price_df['Date_ordinal'] = fuel_price_df['Date'].map(lambda x: x.toordinal())
+fuel_price_df = fuel_price_df[['Date', 'Average_Fuel_Price']]
+fuel_price_df['Date'] = pd.to_datetime(fuel_price_df['Date'])
 
-    X_price = fuel_price_df[['Date_ordinal']]
-    y_price = fuel_price_df['Average_Fuel_Price']
-    price_model = LinearRegression()
-    price_model.fit(X_price, y_price)
+fuel_price_df['Date_ordinal'] = fuel_price_df['Date'].map(lambda x: x.toordinal())
 
-    last_actual_date = fuel_price_df['Date'].max()
-    last_actual_date_num = mdates.date2num(last_actual_date)
+X_price = fuel_price_df[['Date_ordinal']]
+y_price = fuel_price_df['Average_Fuel_Price']
+price_model = LinearRegression()
+price_model.fit(X_price, y_price)
 
-    future_dates_fuel = pd.date_range(start=last_actual_date + pd.DateOffset(months=1), end='2025-12-01', freq='MS')
-    future_df = pd.DataFrame({'Date': future_dates_fuel})
-    future_df['Date_ordinal'] = future_df['Date'].map(lambda x: x.toordinal())
-	
-    future_df['Average_Fuel_Price'] = price_model.predict(future_df[['Date_ordinal']])
+last_actual_date = fuel_price_df['Date'].max()
+last_actual_date_num = mdates.date2num(last_actual_date)
 
-    df_filtered['Date'] = pd.to_datetime(df_filtered['Date'])
-    df_filtered = df_filtered.merge(fuel_price_df[['Date', 'Average_Fuel_Price']], on='Date', how='left')
+future_dates_fuel = pd.date_range(start=last_actual_date + pd.DateOffset(months=1), end='2025-12-01', freq='MS')
+future_df = pd.DataFrame({'Date': future_dates_fuel})
+future_df['Date_ordinal'] = future_df['Date'].map(lambda x: x.toordinal())
 
-    df_filtered['Fuel_Cost_per_Day'] = df_filtered['유류비(\)'] / df_filtered['시운전 일수']
-    df_filtered = df_filtered.dropna(subset=['Average_Fuel_Price', 'Fuel_Cost_per_Day'])
-    df_filtered['Date_ordinal'] = df_filtered['Date'].map(lambda x: x.toordinal())
+future_df['Average_Fuel_Price'] = price_model.predict(future_df[['Date_ordinal']])
 
-    X_fuel = df_filtered[['Average_Fuel_Price', 'Date_ordinal']]
-    y_fuel = df_filtered['Fuel_Cost_per_Day']
+df_filtered['Date'] = pd.to_datetime(df_filtered['Date'])
+df_filtered = df_filtered.merge(fuel_price_df[['Date', 'Average_Fuel_Price']], on='Date', how='left')
 
-    fuel_cost_model = LinearRegression()
-    fuel_cost_model.fit(X_fuel, y_fuel)
+df_filtered['Fuel_Cost_per_Day'] = df_filtered['유류비(\)'] / df_filtered['시운전 일수']
+df_filtered = df_filtered.dropna(subset=['Average_Fuel_Price', 'Fuel_Cost_per_Day'])
+df_filtered['Date_ordinal'] = df_filtered['Date'].map(lambda x: x.toordinal())
 
-    future_df['Fuel_Cost_per_Day_Predicted'] = fuel_cost_model.predict(future_df[['Average_Fuel_Price', 'Date_ordinal']])
+X_fuel = df_filtered[['Average_Fuel_Price', 'Date_ordinal']]
+y_fuel = df_filtered['Fuel_Cost_per_Day']
 
-    average_days = df_filtered['시운전 일수'].mean()
-    future_df['유류비'] = future_df['Fuel_Cost_per_Day_Predicted'] * average_days
+fuel_cost_model = LinearRegression()
+fuel_cost_model.fit(X_fuel, y_fuel)
 
-    fuel_cost_df = df_filtered.groupby('Date')['유류비(\)'].mean().reset_index()
-    fuel_cost_df.rename(columns={'유류비(\)': '유류비'}, inplace=True)
-    fuel_cost_df['Date'] = pd.to_datetime(fuel_cost_df['Date'])
+future_df['Fuel_Cost_per_Day_Predicted'] = fuel_cost_model.predict(future_df[['Average_Fuel_Price', 'Date_ordinal']])
 
-    combined_fuel_cost_df = pd.concat([
-        fuel_cost_df[['Date', '유류비']],
-        future_df[['Date', '유류비']]
-    ], ignore_index=True)
-    combined_fuel_cost_df.sort_values('Date', inplace=True)
+average_days = df_filtered['시운전 일수'].mean()
+future_df['유류비'] = future_df['Fuel_Cost_per_Day_Predicted'] * average_days
 
-    fig, ax = plt.subplots(figsize=(12, 6))
+fuel_cost_df = df_filtered.groupby('Date')['유류비(\)'].mean().reset_index()
+fuel_cost_df.rename(columns={'유류비(\)': '유류비'}, inplace=True)
+fuel_cost_df['Date'] = pd.to_datetime(fuel_cost_df['Date'])
 
-    dates = mdates.date2num(combined_fuel_cost_df['Date'])
-    costs = combined_fuel_cost_df['유류비'].values
+combined_fuel_cost_df = pd.concat([
+    fuel_cost_df[['Date', '유류비']],
+    future_df[['Date', '유류비']]
+], ignore_index=True)
+combined_fuel_cost_df.sort_values('Date', inplace=True)
 
-    points = np.array([dates, costs]).T.reshape(-1, 1, 2)
-    segments = np.concatenate([points[:-1], points[1:]], axis=1)
+fig, ax = plt.subplots(figsize=(12, 6))
 
-    colors = ['blue' if date <= last_actual_date_num else 'red' for date in dates[:-1]]
+dates = mdates.date2num(combined_fuel_cost_df['Date'])
+costs = combined_fuel_cost_df['유류비'].values
 
-    lc = LineCollection(segments, colors=colors, linewidths=2)
-    ax.add_collection(lc)
+points = np.array([dates, costs]).T.reshape(-1, 1, 2)
+segments = np.concatenate([points[:-1], points[1:]], axis=1)
 
-    individual_fuel_df = df_filtered[['Date','유류비(\)','지연 여부']].copy()
-    individual_fuel_df['Date'] = pd.to_datetime(individual_fuel_df['Date'])
-	
-    normal_df = individual_fuel_df[individual_fuel_df['지연 여부'] == '정상']
-    delay_df = individual_fuel_df[individual_fuel_df['지연 여부'] == '지연']
+colors = ['blue' if date <= last_actual_date_num else 'red' for date in dates[:-1]]
 
-    ax.scatter(normal_df['Date'], normal_df['유류비(\)'], color='#1ca392', marker='o', label='Normal', alpha=0.2, zorder=3)
-    ax.scatter(delay_df['Date'], delay_df['유류비(\)'], color='#ffc81b', marker='o', label='Delay', alpha=0.2, zorder=3)
+lc = LineCollection(segments, colors=colors, linewidths=2)
+ax.add_collection(lc)
 
-    ax.set_xlim(dates.min(), dates.max())
-    ax.set_ylim(costs.min() - np.ptp(costs) * 0.3, costs.max() + np.ptp(costs) * 0.3)
+individual_fuel_df = df_filtered[['Date','유류비(\)','지연 여부']].copy()
+individual_fuel_df['Date'] = pd.to_datetime(individual_fuel_df['Date'])
 
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
-    plt.xticks(rotation=45)
+normal_df = individual_fuel_df[individual_fuel_df['지연 여부'] == '정상']
+delay_df = individual_fuel_df[individual_fuel_df['지연 여부'] == '지연']
 
-    actual_patch = plt.Line2D([0], [0], color='blue', label='Fuel cost')
-    predicted_patch = plt.Line2D([0], [0], color='red', label='Prediction')
-    normal_point_patch = plt.Line2D([0], [0], marker='o', color='#1ca392', linestyle='None', label='Normal')
-    delay_point_patch = plt.Line2D([0], [0], marker='o', color='#ffc81b', linestyle='None', label='Delay')
-    ax.legend(handles=[actual_patch, predicted_patch, normal_point_patch, delay_point_patch])
+ax.scatter(normal_df['Date'], normal_df['유류비(\)'], color='#1ca392', marker='o', label='Normal', alpha=0.2, zorder=3)
+ax.scatter(delay_df['Date'], delay_df['유류비(\)'], color='#ffc81b', marker='o', label='Delay', alpha=0.2, zorder=3)
 
-    ax.set_xlabel('Date')
-    ax.set_ylabel('Fuel cost')
-    ax.set_title(f'Change in fuel cost over time ({ship_type})')
+ax.set_xlim(dates.min(), dates.max())
+ax.set_ylim(costs.min() - np.ptp(costs) * 0.3, costs.max() + np.ptp(costs) * 0.3)
 
-    plt.tight_layout()
+ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
+plt.xticks(rotation=45)
 
-    st.pyplot(fig)
+actual_patch = plt.Line2D([0], [0], color='blue', label='Fuel cost')
+predicted_patch = plt.Line2D([0], [0], color='red', label='Prediction')
+normal_point_patch = plt.Line2D([0], [0], marker='o', color='#1ca392', linestyle='None', label='Normal')
+delay_point_patch = plt.Line2D([0], [0], marker='o', color='#ffc81b', linestyle='None', label='Delay')
+ax.legend(handles=[actual_patch, predicted_patch, normal_point_patch, delay_point_patch])
 
-    future_df['Date_str'] = future_df['Date'].dt.strftime('%Y-%m')
-    predicted_fuel_df = future_df[future_df['Date'].dt.year == 2025][['Date_str', '유류비']]
-    predicted_fuel_df.rename(columns={'Date_str': 'Date', '유류비': '예측 유류비'}, inplace=True)
+ax.set_xlabel('Date')
+ax.set_ylabel('Fuel cost')
+ax.set_title(f'Change in fuel cost over time ({ship_type})')
 
-    with st.expander("유류비 예측 결과 테이블 보기"):
-        st.write("##### 유류비 예측 결과 (2025년 01월 ~ 2025년 12월)")
-        st.table(predicted_fuel_df.reset_index(drop=True))
+plt.tight_layout()
 
-    # 유가 예측
-    st.subheader("유류비 예측 Part - 유가 예측")
+st.pyplot(fig)
+
+st.write("유류비 예측 Part - 유가 및 환율 예측")
+
+col1, col2 = st.columns(2)
+
+# 유가 예측
+with col1:
+    st.write("##### 유가 예측")
 
     fuel_price_df = pd.read_excel('app/연도별 유류비.xlsx')
 
@@ -540,23 +538,25 @@ else:
     future_fuel_df = pd.DataFrame({'Date': future_dates_fuel})
     future_fuel_df['Date_ordinal'] = future_fuel_df['Date'].map(lambda x: x.toordinal())
 
-    future_fuel_df['HFO 단가(100L)'] = hfo_model.predict(future_fuel_df[['Date_ordinal']])
-    future_fuel_df['MFO 단가(100L)'] = mfo_model.predict(future_fuel_df[['Date_ordinal']])
+    future_fuel_df['예측 HFO 단가'] = hfo_model.predict(future_fuel_df[['Date_ordinal']])
+    future_fuel_df['예측 MFO 단가'] = mfo_model.predict(future_fuel_df[['Date_ordinal']])
+
+    future_fuel_df['Average_Fuel_Price'] = (future_fuel_df['예측 HFO 단가'] + future_fuel_df['예측 MFO 단가']) / 2
 
     combined_hfo_df = pd.concat([
         fuel_price_df[['Date', 'HFO 단가(100L)']],
-        future_fuel_df[['Date', 'HFO 단가(100L)']]
+        future_fuel_df[['Date', '예측 HFO 단가']].rename(columns={'예측 HFO 단가': 'HFO 단가(100L)'})
     ], ignore_index=True)
 
     combined_mfo_df = pd.concat([
         fuel_price_df[['Date', 'MFO 단가(100L)']],
-        future_fuel_df[['Date', 'MFO 단가(100L)']]
+        future_fuel_df[['Date', '예측 MFO 단가']].rename(columns={'예측 MFO 단가': 'MFO 단가(100L)'})
     ], ignore_index=True)
 
     combined_hfo_df.sort_values('Date', inplace=True)
     combined_mfo_df.sort_values('Date', inplace=True)
 
-    fig, ax = plt.subplots(figsize=(12, 6))
+    fig1, ax1 = plt.subplots(figsize=(6, 4))
 
     dates_hfo = mdates.date2num(combined_hfo_df['Date'])
     prices_hfo = combined_hfo_df['HFO 단가(100L)'].values
@@ -567,7 +567,7 @@ else:
     colors_hfo = ['blue' if date <= last_actual_date_num_fuel else 'red' for date in dates_hfo[:-1]]
 
     lc_hfo = LineCollection(segments_hfo, colors=colors_hfo, linewidths=2)
-    ax.add_collection(lc_hfo)
+    ax1.add_collection(lc_hfo)
 
     dates_mfo = mdates.date2num(combined_mfo_df['Date'])
     prices_mfo = combined_mfo_df['MFO 단가(100L)'].values
@@ -578,39 +578,32 @@ else:
     colors_mfo = ['green' if date <= last_actual_date_num_fuel else 'orange' for date in dates_mfo[:-1]]
 
     lc_mfo = LineCollection(segments_mfo, colors=colors_mfo, linewidths=2)
-    ax.add_collection(lc_mfo)
+    ax1.add_collection(lc_mfo)
 
-    ax.set_xlim(min(dates_hfo.min(), dates_mfo.min()), max(dates_hfo.max(), dates_mfo.max()))
-    ax.set_ylim(min(prices_hfo.min(), prices_mfo.min()) - 10, max(prices_hfo.max(), prices_mfo.max()) + 10)
+    ax1.set_xlim(min(dates_hfo.min(), dates_mfo.min()), max(dates_hfo.max(), dates_mfo.max()))
+    ax1.set_ylim(min(prices_hfo.min(), prices_mfo.min()) - 10, max(prices_hfo.max(), prices_mfo.max()) + 10)
 
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
-    plt.xticks(rotation=45)
+    ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
+    ax1.tick_params(axis='x', rotation=45)
 
     actual_hfo_patch = plt.Line2D([0], [0], color='blue', label='HFO cost')
     predicted_hfo_patch = plt.Line2D([0], [0], color='red', label='Prediction HFO')
     actual_mfo_patch = plt.Line2D([0], [0], color='green', label='MFO cost')
     predicted_mfo_patch = plt.Line2D([0], [0], color='orange', label='Prediction MFO')
-    ax.legend(handles=[actual_hfo_patch, predicted_hfo_patch, actual_mfo_patch, predicted_mfo_patch])
+    ax1.legend(handles=[actual_hfo_patch, predicted_hfo_patch, actual_mfo_patch, predicted_mfo_patch], fontsize='small')
 
-    ax.set_xlabel('Date')
-    ax.set_ylabel('Cost (100ℓ)')
-    ax.set_title('HFO & MFO cost prediction')
+    ax1.set_xlabel('Date')
+    ax1.set_ylabel('Cost (100ℓ)')
+    ax1.set_title('HFO & MFO Cost Prediction')
 
     plt.tight_layout()
 
-    st.pyplot(fig)
+    st.pyplot(fig1)
 
-    future_fuel_df['Date_str'] = future_fuel_df['Date'].dt.strftime('%Y-%m')
-    predicted_prices_df = future_fuel_df[['Date_str', 'HFO 단가(100L)', 'MFO 단가(100L)']]
-    predicted_prices_df.rename(columns={'Date_str': 'Date', 'HFO 단가(100L)': '예측 HFO 단가', 'MFO 단가(100L)': '예측 MFO 단가'}, inplace=True)
-
-    with st.expander("유가 예측 결과 테이블 보기"):
-        st.write("##### 유가 예측 결과 (2025년 01월 ~ 2025년 12월)")
-        st.table(predicted_prices_df[predicted_prices_df['Date'].str.startswith('2025')].reset_index(drop=True))
-
-    #환율 예측
-    st.subheader("유류비 예측 Part - 환율 예측")
-
+# 환율 예측
+with col2:
+    st.write("##### 환율 예측")
+	
     exchange_rate_df = pd.read_excel('app/연도별 환율.xlsx')
 
     exchange_rate_df['Month'] = exchange_rate_df['Month'].astype(str)
@@ -638,23 +631,23 @@ else:
     future_exchange_df = pd.DataFrame({'Date': future_dates_exchange})
     future_exchange_df['Date_ordinal'] = future_exchange_df['Date'].map(lambda x: x.toordinal())
 
-    future_exchange_df['Dollar'] = dollar_model.predict(future_exchange_df[['Date_ordinal']])
-    future_exchange_df['Euro'] = euro_model.predict(future_exchange_df[['Date_ordinal']])
+    future_exchange_df['예측 달러'] = dollar_model.predict(future_exchange_df[['Date_ordinal']])
+    future_exchange_df['예측 유로화'] = euro_model.predict(future_exchange_df[['Date_ordinal']])
 
     combined_dollar_df = pd.concat([
         exchange_rate_df[['Date', 'Dollar']],
-        future_exchange_df[['Date', 'Dollar']]
+        future_exchange_df[['Date', '예측 달러']].rename(columns={'예측 달러': 'Dollar'})
     ], ignore_index=True)
 
     combined_euro_df = pd.concat([
         exchange_rate_df[['Date', 'Euro']],
-        future_exchange_df[['Date', 'Euro']]
+        future_exchange_df[['Date', '예측 유로화']].rename(columns={'예측 유로화': 'Euro'})
     ], ignore_index=True)
 
     combined_dollar_df.sort_values('Date', inplace=True)
     combined_euro_df.sort_values('Date', inplace=True)
 
-    fig, ax = plt.subplots(figsize=(12, 6))
+    fig2, ax2 = plt.subplots(figsize=(6, 4)) 
 
     dates_dollar = mdates.date2num(combined_dollar_df['Date'])
     rates_dollar = combined_dollar_df['Dollar'].values
@@ -665,7 +658,7 @@ else:
     colors_dollar = ['blue' if date <= last_actual_date_num_exchange else 'red' for date in dates_dollar[:-1]]
 
     lc_dollar = LineCollection(segments_dollar, colors=colors_dollar, linewidths=2)
-    ax.add_collection(lc_dollar)
+    ax2.add_collection(lc_dollar)
 
     dates_euro = mdates.date2num(combined_euro_df['Date'])
     rates_euro = combined_euro_df['Euro'].values
@@ -676,288 +669,298 @@ else:
     colors_euro = ['green' if date <= last_actual_date_num_exchange else 'orange' for date in dates_euro[:-1]]
 
     lc_euro = LineCollection(segments_euro, colors=colors_euro, linewidths=2)
-    ax.add_collection(lc_euro)
+    ax2.add_collection(lc_euro)
 
-    ax.set_xlim(min(dates_dollar.min(), dates_euro.min()), max(dates_dollar.max(), dates_euro.max()))
-    ax.set_ylim(min(rates_dollar.min(), rates_euro.min()) - 10, max(rates_dollar.max(), rates_euro.max()) + 10)
+    ax2.set_xlim(min(dates_dollar.min(), dates_euro.min()), max(dates_dollar.max(), dates_euro.max()))
+    ax2.set_ylim(min(rates_dollar.min(), rates_euro.min()) - 10, max(rates_dollar.max(), rates_euro.max()) + 10)
 
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
-    plt.xticks(rotation=45)
+    ax2.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
+    ax2.tick_params(axis='x', rotation=45)
 
     actual_dollar_patch = plt.Line2D([0], [0], color='blue', label='Dollar cost')
     predicted_dollar_patch = plt.Line2D([0], [0], color='red', label='Prediction dollar')
     actual_euro_patch = plt.Line2D([0], [0], color='green', label='Euro cost')
     predicted_euro_patch = plt.Line2D([0], [0], color='orange', label='Prediction Euro')
-    ax.legend(handles=[actual_dollar_patch, predicted_dollar_patch, actual_euro_patch, predicted_euro_patch])
+    ax2.legend(handles=[actual_dollar_patch, predicted_dollar_patch, actual_euro_patch, predicted_euro_patch], fontsize='small')
 
-    ax.set_xlabel('Date')
-    ax.set_ylabel('Exchange rate')
-    ax.set_title('Dollar & Euro prediction exchange rate')
-
-    plt.tight_layout()
-
-    st.pyplot(fig)
-
-    future_exchange_df['Date_str'] = future_exchange_df['Date'].dt.strftime('%Y-%m')
-    predicted_exchange_df = future_exchange_df[['Date_str', 'Dollar', 'Euro']]
-    predicted_exchange_df.rename(columns={'Date_str': 'Date', 'Dollar': '예측 달러 환율', 'Euro': '예측 유로 환율'}, inplace=True)
-
-    with st.expander("환율 예측 결과 테이블 보기"):
-        st.write("##### 환율 예측 결과 (2025년 01월 ~ 2025년 12월)")
-        st.table(predicted_exchange_df[predicted_exchange_df['Date'].str.startswith('2025')].reset_index(drop=True))
-
-    # 총 경비 예측
-    st.write("#### 4. 총 경비 예측")
-
-    total_cost_df = df_filtered.groupby('Date')['총 경비'].mean().reset_index()
-    total_cost_df['Date'] = pd.to_datetime(total_cost_df['Date'])
-    # Date_ordinal은 더 이상 사용하지 않으므로 제거합니다.
-
-    X_total = total_cost_df[['Date']]
-    y_total = total_cost_df['총 경비']
-
-    X_total['Date_ordinal'] = X_total['Date'].map(lambda x: x.toordinal())
-    total_cost_model = LinearRegression()
-    total_cost_model.fit(X_total[['Date_ordinal']], y_total)
-	
-    last_actual_date = total_cost_df['Date'].max()
-    last_actual_date_num = mdates.date2num(last_actual_date)
-
-    future_dates_extended = pd.date_range(start=last_actual_date + pd.DateOffset(months=1), end='2025-12-01', freq='MS')
-    future_dates_df = pd.DataFrame({'Date': future_dates_extended})
-    future_dates_df['Date_ordinal'] = future_dates_df['Date'].map(lambda x: x.toordinal())
-
-    future_dates_df['총 경비'] = total_cost_model.predict(future_dates_df[['Date_ordinal']])
-
-    combined_total_cost_df = pd.concat([
-        total_cost_df[['Date', '총 경비']],
-        future_dates_df[['Date', '총 경비']]
-    ], ignore_index=True)
-    combined_total_cost_df.sort_values('Date', inplace=True)
-
-    fig, ax = plt.subplots(figsize=(12, 6))
-
-    dates = mdates.date2num(combined_total_cost_df['Date'])
-    costs = combined_total_cost_df['총 경비'].values
-
-    points = np.array([dates, costs]).T.reshape(-1, 1, 2)
-    segments = np.concatenate([points[:-1], points[1:]], axis=1)
-
-    colors = ['blue' if date <= last_actual_date_num else 'red' for date in dates[:-1]]
-
-    lc = LineCollection(segments, colors=colors, linewidths=2)
-    ax.add_collection(lc)
-
-    individual_total_df = df_filtered[['Date','총 경비','지연 여부']].copy()
-    individual_total_df['Date'] = pd.to_datetime(individual_total_df['Date'])
-
-    normal_df = individual_total_df[individual_total_df['지연 여부'] == '정상']
-    delay_df = individual_total_df[individual_total_df['지연 여부'] == '지연']
-
-    ax.scatter(normal_df['Date'], normal_df['총 경비'], color='#1ca392', marker='o', label='Normal', alpha=0.2, zorder=3)
-    ax.scatter(delay_df['Date'], delay_df['총 경비'], color='#ffc81b', marker='o', label='Delay', alpha=0.2, zorder=3)
-
-    ax.set_xlim(dates.min(), dates.max())
-    ax.set_ylim(costs.min() - np.ptp(costs) * 0.3, costs.max() + np.ptp(costs) * 0.3)
-
-    ax.set_xlabel('Date')
-    ax.set_ylabel('Total Cost')
-    ax.set_title(f'Changes in total cost over time ({ship_type})')
-
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
-    plt.xticks(rotation=45)
-
-    actual_patch = plt.Line2D([0], [0], color='blue', label='Total cost')
-    predicted_patch = plt.Line2D([0], [0], color='red', label='Prediction cost')
-    normal_point_patch = plt.Line2D([0], [0], marker='o', color='#1ca392', linestyle='None', label='Normal')
-    delay_point_patch = plt.Line2D([0], [0], marker='o', color='#ffc81b', linestyle='None', label='Delay')
-    ax.legend(handles=[actual_patch, predicted_patch, normal_point_patch, delay_point_patch])
+    ax2.set_xlabel('Date')
+    ax2.set_ylabel('Exchange rate')
+    ax2.set_title('Dollar & Euro Prediction Exchange Rate')
 
     plt.tight_layout()
 
-    st.pyplot(fig)
+    st.pyplot(fig2)
 
-    future_dates_df['Date_str'] = future_dates_df['Date'].dt.strftime('%Y-%m')
-    predicted_total_cost_df_2025 = future_dates_df[future_dates_df['Date'].dt.year == 2025][['Date_str', '총 경비']]
-    predicted_total_cost_df_2025.rename(columns={'Date_str': 'Date', '총 경비': '예측 총 경비'}, inplace=True)
+predicted_fuel_cost_df = future_df[['Date', '유류비']].copy()
+predicted_fuel_cost_df.rename(columns={'유류비': '예측 유류비'}, inplace=True)
 
-    with st.expander("총 경비 예측 결과 테이블 보기"):
-        st.write("##### 총 경비 예측 결과 (2025년 01월 ~ 2025년 12월)")
-        st.table(predicted_total_cost_df_2025.reset_index(drop=True))
+predicted_fuel_prices_df = future_fuel_df[['Date', '예측 HFO 단가', '예측 MFO 단가']].copy()
 
-    # 원인 분석
-    st.write("### 05. 원인 분석")
-    st.write("#### 2024년 평균 대비 2025년의 시운전 예측 비용을 원인 분석합니다.")
+predicted_exchange_rate_df = future_exchange_df[['Date', '예측 달러', '예측 유로화']].copy()
 
-    months = [f"{i}월" for i in range(1, 13)]
-    selected_month = st.selectbox("2025년 예측하고 싶은 월을 선택해주세요.", months, index=0)
+combined_predicted_df = predicted_fuel_cost_df.merge(predicted_fuel_prices_df, on='Date', how='inner')
+combined_predicted_df = combined_predicted_df.merge(predicted_exchange_rate_df, on='Date', how='inner')
 
-    selected_month_num = int(selected_month.replace('월', ''))
+combined_predicted_df['Date'] = combined_predicted_df['Date'].dt.strftime('%Y-%m')
 
-    df_2024 = df_filtered[df_filtered['Date'].dt.year == 2024]
+combined_predicted_df = combined_predicted_df[combined_predicted_df['Date'].str.startswith('2025')]
 
-    if df_2024.empty:
-        st.write("선택한 선종의 2024년 데이터가 없습니다.")
-    else:
-        average_2024_labor = df_2024['인건비'].mean()
-        average_2024_other = df_2024['기타비용'].mean()
-        average_2024_fuel = df_2024['유류비(\)'].mean()
+with st.expander("예측 결과 테이블 보기"):
+    st.write("##### 예측 결과 테이블 (2025년 01월 ~ 2025년 12월)")
+    st.table(combined_predicted_df.reset_index(drop=True))
 
-        predicted_labor_df['Date'] = pd.to_datetime(predicted_labor_df['Date'], format='%Y-%m')
-        labor_cost_2025_row = predicted_labor_df[(predicted_labor_df['Date'].dt.year == 2025) & (predicted_labor_df['Date'].dt.month == selected_month_num)]
-        if labor_cost_2025_row.empty:
-            st.write(f"선택한 월의 인건비 예측 데이터가 없습니다.")
-            labor_cost_2025 = None
-        else:
-            labor_cost_2025 = labor_cost_2025_row['예측 인건비'].values[0]
+# 총 경비 예측
+st.write("#### 4. 총 경비 예측")
 
-    predicted_other_df['Date'] = pd.to_datetime(predicted_other_df['Date'], format='%Y-%m')
-    other_cost_2025_row = predicted_other_df[(predicted_other_df['Date'].dt.year == 2025) & (predicted_other_df['Date'].dt.month == selected_month_num)]
-    if other_cost_2025_row.empty:
-        st.write(f"선택한 월의 기타비용 예측 데이터가 없습니다.")
-        other_cost_2025 = None
-    else:
-        other_cost_2025 = other_cost_2025_row['예측 기타비용'].values[0]
+total_cost_df = df_filtered.groupby('Date')['총 경비'].mean().reset_index()
+total_cost_df['Date'] = pd.to_datetime(total_cost_df['Date'])
+# Date_ordinal은 더 이상 사용하지 않으므로 제거합니다.
 
-    predicted_fuel_df['Date'] = pd.to_datetime(predicted_fuel_df['Date'], format='%Y-%m')
-    fuel_cost_2025_row = predicted_fuel_df[(predicted_fuel_df['Date'].dt.year == 2025) & (predicted_fuel_df['Date'].dt.month == selected_month_num)]
-    if fuel_cost_2025_row.empty:
-        st.write(f"선택한 월의 유류비 예측 데이터가 없습니다.")
-        fuel_cost_2025 = None
-    else:
-        fuel_cost_2025 = fuel_cost_2025_row['예측 유류비'].values[0]
+X_total = total_cost_df[['Date']]
+y_total = total_cost_df['총 경비']
 
-    if None in [labor_cost_2025, other_cost_2025, fuel_cost_2025]:
-        st.write("결과를 표시할 수 없습니다.")
-    else:
-        labor_increase_rate = ((labor_cost_2025 - average_2024_labor) / average_2024_labor * 100) if average_2024_labor != 0 else None
-        other_increase_rate = ((other_cost_2025 - average_2024_other) / average_2024_other * 100) if average_2024_other != 0 else None
-        fuel_increase_rate = ((fuel_cost_2025 - average_2024_fuel) / average_2024_fuel * 100) if average_2024_fuel != 0 else None
+X_total['Date_ordinal'] = X_total['Date'].map(lambda x: x.toordinal())
+total_cost_model = LinearRegression()
+total_cost_model.fit(X_total[['Date_ordinal']], y_total)
 
-        def format_increase_rate(rate):
-            return f"{rate:.2f}%" if rate is not None else "N/A"
+last_actual_date = total_cost_df['Date'].max()
+last_actual_date_num = mdates.date2num(last_actual_date)
 
-        result_df = pd.DataFrame({
-            '항목': ['인건비', '기타 비용', '유류비'],
-            '2024년 평균 비용': [average_2024_labor, average_2024_other, average_2024_fuel],
-            f'2025년 {selected_month} 예측 비용': [labor_cost_2025, other_cost_2025, fuel_cost_2025],
-            '상승률': [format_increase_rate(labor_increase_rate), format_increase_rate(other_increase_rate), format_increase_rate(fuel_increase_rate)]
-        })
+future_dates_extended = pd.date_range(start=last_actual_date + pd.DateOffset(months=1), end='2025-12-01', freq='MS')
+future_dates_df = pd.DataFrame({'Date': future_dates_extended})
+future_dates_df['Date_ordinal'] = future_dates_df['Date'].map(lambda x: x.toordinal())
 
-        def format_currency(value):
-            return f"{int(value):,}원" if not pd.isnull(value) else "N/A"
+future_dates_df['총 경비'] = total_cost_model.predict(future_dates_df[['Date_ordinal']])
 
-        result_df['2024년 평균 비용'] = result_df['2024년 평균 비용'].apply(format_currency)
-        result_df[f'2025년 {selected_month} 예측 비용'] = result_df[f'2025년 {selected_month} 예측 비용'].apply(format_currency)
+combined_total_cost_df = pd.concat([
+total_cost_df[['Date', '총 경비']],
+future_dates_df[['Date', '총 경비']]
+], ignore_index=True)
+combined_total_cost_df.sort_values('Date', inplace=True)
 
-        st.table(result_df)
+fig, ax = plt.subplots(figsize=(12, 6))
 
-        increase_rates = [labor_increase_rate, other_increase_rate, fuel_increase_rate]
-        valid_indices = [i for i, rate in enumerate(increase_rates) if rate is not None]
+dates = mdates.date2num(combined_total_cost_df['Date'])
+costs = combined_total_cost_df['총 경비'].values
 
-        if not valid_indices:
-            st.write("계산할 수 없습니다.")
-        else:
-            max_increase_index = max(valid_indices, key=lambda i: abs(increase_rates[i]))
-            max_increase_rate = increase_rates[max_increase_index]
-            max_increase_item = result_df.loc[max_increase_index, '항목']
+points = np.array([dates, costs]).T.reshape(-1, 1, 2)
+segments = np.concatenate([points[:-1], points[1:]], axis=1)
 
-            change_type = '상승' if max_increase_rate >= 0 else '감소'
+colors = ['blue' if date <= last_actual_date_num else 'red' for date in dates[:-1]]
 
-            st.write(f"{ship_type} 선종의 **{max_increase_item}**이(가) 전체 총 경비의 **{abs(max_increase_rate):.2f}% {change_type}**으로 가장 큰 변동을 보인 항목입니다.")
-	
-	
-    st.write("### 06. 항목별 비용 특성 분석 (Radar Chart)")
-    st.write("유류비, 인건비, 총 경비, 기타비용의 정상 운영과 지연 운영 간의 비율을 비교하여 분석")
-    with st.expander("Radar Chart 설명 보기"):
-        st.write("#### 항목명 : Radar plot 에서 각 꼭지점")
-        st.write("Fuel Cost: 시운전 선박이 사용한 유류비를 의미.")
-        st.write("STN_C: Sea Trials Navigator Cost의 약자로 항해사비를 의미. 항해사비는 선장 비용, 타수 비용, 도선비, 임시항해 검사비, 자차 수정 비용이 포함된 금액.")
-        st.write("SMMT_C: Ship Maintenance and Management Team의 약자로 노무비를 의미.")
-        st.write("Other Cost: 시운전 선박의 기타 경비를 의미. 기타 비용은 용도품 침구 및 물품, 예선료, 통선비, 양식, 한식 이 포함된 금액.")
-        st.write("Total Cost: 시운전 선박의 총경비를 의미.")
-        st.write("#### 운영 결과")
-        st.write("**Normal**: 해당 시운전이 계획된 기간에 맞게 진행이 되었음을 의미.")
-        st.write("**Delay**: 해당 시운전이 계획된 기간(days)보다 지연이 되었음을 의미.")
-        st.write("**Total**: 시운전 선박의 모든 데이터를 의미.")
+lc = LineCollection(segments, colors=colors, linewidths=2)
+ax.add_collection(lc)
 
-    def calculate_cost_ratios(df):
-        cost_columns = ['유류비(\)', '항해사비', '노무원비용', '총 경비', '기타비용']
+individual_total_df = df_filtered[['Date','총 경비','지연 여부']].copy()
+individual_total_df['Date'] = pd.to_datetime(individual_total_df['Date'])
 
-        normal_df = df[df['지연 여부'] == '정상']
-        delayed_df = df[df['지연 여부'] == '지연']
+normal_df = individual_total_df[individual_total_df['지연 여부'] == '정상']
+delay_df = individual_total_df[individual_total_df['지연 여부'] == '지연']
 
-        total_avg = df[cost_columns].mean()
+ax.scatter(normal_df['Date'], normal_df['총 경비'], color='#1ca392', marker='o', label='Normal', alpha=0.2, zorder=3)
+ax.scatter(delay_df['Date'], delay_df['총 경비'], color='#ffc81b', marker='o', label='Delay', alpha=0.2, zorder=3)
 
-        normal_avg = normal_df[cost_columns].mean()
-        delayed_avg = delayed_df[cost_columns].mean()
+ax.set_xlim(dates.min(), dates.max())
+ax.set_ylim(costs.min() - np.ptp(costs) * 0.3, costs.max() + np.ptp(costs) * 0.3)
 
-        ratios = {
-            'Fuel Cost': {
-                'Normal': (normal_avg['유류비(\)'] / total_avg['유류비(\)']) * 90,
-                'Delay': (delayed_avg['유류비(\)'] / total_avg['유류비(\)']) * 110,
-                'Total': 100
-            },
-	        'SMMT_C': {
-                'Normal': (normal_avg['노무원비용'] / total_avg['노무원비용']) * 90,
-                'Delay': (delayed_avg['노무원비용'] / total_avg['노무원비용']) * 110,
-                'Total': 100
-            },
-            'Total Cost': {
-                'Normal': (normal_avg['총 경비'] / total_avg['총 경비']) * 90,
-                'Delay': (delayed_avg['총 경비'] / total_avg['총 경비']) * 110,
-                'Total': 100
-            },
-            'Other Cost': {
-                'Normal': (normal_avg['기타비용'] / total_avg['기타비용']) * 90,
-                'Delay': (delayed_avg['기타비용'] / total_avg['기타비용']) * 110,
-                'Total': 100
-            },
-            'STN_C': {
-                'Normal': (normal_avg['항해사비'] / total_avg['항해사비']) * 90,
-                'Delay': (delayed_avg['항해사비'] / total_avg['항해사비']) * 110,
-                'Total': 100
-            }
-        }
+ax.set_xlabel('Date')
+ax.set_ylabel('Total Cost')
+ax.set_title(f'Changes in total cost over time ({ship_type})')
 
-        return ratios
+ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
+plt.xticks(rotation=45)
 
-    def plot_radar_chart(ratios):
-        categories = ['Fuel Cost', 'SMMT_C', 'Total Cost', 'Other Cost', 'STN_C']
+actual_patch = plt.Line2D([0], [0], color='blue', label='Total cost')
+predicted_patch = plt.Line2D([0], [0], color='red', label='Prediction cost')
+normal_point_patch = plt.Line2D([0], [0], marker='o', color='#1ca392', linestyle='None', label='Normal')
+delay_point_patch = plt.Line2D([0], [0], marker='o', color='#ffc81b', linestyle='None', label='Delay')
+ax.legend(handles=[actual_patch, predicted_patch, normal_point_patch, delay_point_patch])
 
-        normal_values = [ratios[cat]['Normal'] for cat in categories]
-        delayed_values = [ratios[cat]['Delay'] for cat in categories]
-        total_values = [ratios[cat]['Total'] for cat in categories]
+plt.tight_layout()
 
-        N = len(categories)
-        angles = [n / float(N) * 2 * pi for n in range(N)]
-        angles += angles[:1]
+st.pyplot(fig)
 
-        normal_values += normal_values[:1]
-        delayed_values += delayed_values[:1]
-        total_values += total_values[:1]
+future_dates_df['Date_str'] = future_dates_df['Date'].dt.strftime('%Y-%m')
+predicted_total_cost_df_2025 = future_dates_df[future_dates_df['Date'].dt.year == 2025][['Date_str', '총 경비']]
+predicted_total_cost_df_2025.rename(columns={'Date_str': 'Date', '총 경비': '예측 총 경비'}, inplace=True)
 
-        fig, ax = plt.subplots(figsize=(5, 5), subplot_kw=dict(polar=True))
+with st.expander("총 경비 예측 결과 테이블 보기"):
+st.write("##### 총 경비 예측 결과 (2025년 01월 ~ 2025년 12월)")
+st.table(predicted_total_cost_df_2025.reset_index(drop=True))
 
-        ax.set_theta_offset(pi / 2)
-        ax.set_theta_direction(-1)
+# 원인 분석
+st.write("### 05. 원인 분석")
+st.write("#### 2024년 평균 대비 2025년의 시운전 예측 비용을 원인 분석합니다.")
 
-        plt.xticks(angles[:-1], categories, fontsize=7, horizontalalignment='center')
-        ax.set_rlabel_position(0)
-        plt.yticks([60, 80, 100, 125], ["60%", "80%", "100%", "125%"], color="grey", size=6)
-        plt.ylim(60, 125)
+months = [f"{i}월" for i in range(1, 13)]
+selected_month = st.selectbox("2025년 예측하고 싶은 월을 선택해주세요.", months, index=0)
 
-        ax.plot(angles, total_values, linewidth=1, linestyle='solid', label='Total', color='#f15628')
-        ax.fill(angles, total_values, alpha=0.1, color='#f15628')
-        ax.plot(angles, normal_values, linewidth=1, linestyle='solid', label='Normal', color='#1ca392')
-        ax.fill(angles, normal_values, alpha=0.1, color='#1ca392')
-        ax.plot(angles, delayed_values, linewidth=1, linestyle='solid', label='Delay', color='#ffc81b')
-        ax.fill(angles, delayed_values, alpha=0.1, color='#ffc81b')
+selected_month_num = int(selected_month.replace('월', ''))
 
-        plt.legend(loc='upper right', bbox_to_anchor=(1.1, 1.1), fontsize=8)
-        plt.title('Radar Chart by Cost')
-        st.pyplot(fig)
+df_2024 = df_filtered[df_filtered['Date'].dt.year == 2024]
 
-    ratios = calculate_cost_ratios(df_filtered)
+if df_2024.empty:
+st.write("선택한 선종의 2024년 데이터가 없습니다.")
+else:
+average_2024_labor = df_2024['인건비'].mean()
+average_2024_other = df_2024['기타비용'].mean()
+average_2024_fuel = df_2024['유류비(\)'].mean()
 
-    plot_radar_chart(ratios)
+predicted_labor_df['Date'] = pd.to_datetime(predicted_labor_df['Date'], format='%Y-%m')
+labor_cost_2025_row = predicted_labor_df[(predicted_labor_df['Date'].dt.year == 2025) & (predicted_labor_df['Date'].dt.month == selected_month_num)]
+if labor_cost_2025_row.empty:
+    st.write(f"선택한 월의 인건비 예측 데이터가 없습니다.")
+    labor_cost_2025 = None
+else:
+    labor_cost_2025 = labor_cost_2025_row['예측 인건비'].values[0]
+
+predicted_other_df['Date'] = pd.to_datetime(predicted_other_df['Date'], format='%Y-%m')
+other_cost_2025_row = predicted_other_df[(predicted_other_df['Date'].dt.year == 2025) & (predicted_other_df['Date'].dt.month == selected_month_num)]
+if other_cost_2025_row.empty:
+st.write(f"선택한 월의 기타비용 예측 데이터가 없습니다.")
+other_cost_2025 = None
+else:
+other_cost_2025 = other_cost_2025_row['예측 기타비용'].values[0]
+
+predicted_fuel_df['Date'] = pd.to_datetime(predicted_fuel_df['Date'], format='%Y-%m')
+fuel_cost_2025_row = predicted_fuel_df[(predicted_fuel_df['Date'].dt.year == 2025) & (predicted_fuel_df['Date'].dt.month == selected_month_num)]
+if fuel_cost_2025_row.empty:
+st.write(f"선택한 월의 유류비 예측 데이터가 없습니다.")
+fuel_cost_2025 = None
+else:
+fuel_cost_2025 = fuel_cost_2025_row['예측 유류비'].values[0]
+
+if None in [labor_cost_2025, other_cost_2025, fuel_cost_2025]:
+st.write("결과를 표시할 수 없습니다.")
+else:
+labor_increase_rate = ((labor_cost_2025 - average_2024_labor) / average_2024_labor * 100) if average_2024_labor != 0 else None
+other_increase_rate = ((other_cost_2025 - average_2024_other) / average_2024_other * 100) if average_2024_other != 0 else None
+fuel_increase_rate = ((fuel_cost_2025 - average_2024_fuel) / average_2024_fuel * 100) if average_2024_fuel != 0 else None
+
+def format_increase_rate(rate):
+    return f"{rate:.2f}%" if rate is not None else "N/A"
+
+result_df = pd.DataFrame({
+    '항목': ['인건비', '기타 비용', '유류비'],
+    '2024년 평균 비용': [average_2024_labor, average_2024_other, average_2024_fuel],
+    f'2025년 {selected_month} 예측 비용': [labor_cost_2025, other_cost_2025, fuel_cost_2025],
+    '상승률': [format_increase_rate(labor_increase_rate), format_increase_rate(other_increase_rate), format_increase_rate(fuel_increase_rate)]
+})
+
+def format_currency(value):
+    return f"{int(value):,}원" if not pd.isnull(value) else "N/A"
+
+result_df['2024년 평균 비용'] = result_df['2024년 평균 비용'].apply(format_currency)
+result_df[f'2025년 {selected_month} 예측 비용'] = result_df[f'2025년 {selected_month} 예측 비용'].apply(format_currency)
+
+st.table(result_df)
+
+increase_rates = [labor_increase_rate, other_increase_rate, fuel_increase_rate]
+valid_indices = [i for i, rate in enumerate(increase_rates) if rate is not None]
+
+if not valid_indices:
+    st.write("계산할 수 없습니다.")
+else:
+    max_increase_index = max(valid_indices, key=lambda i: abs(increase_rates[i]))
+    max_increase_rate = increase_rates[max_increase_index]
+    max_increase_item = result_df.loc[max_increase_index, '항목']
+
+    change_type = '상승' if max_increase_rate >= 0 else '감소'
+
+    st.write(f"{ship_type} 선종의 **{max_increase_item}**이(가) 전체 총 경비의 **{abs(max_increase_rate):.2f}% {change_type}**으로 가장 큰 변동을 보인 항목입니다.")
+
+
+st.write("### 06. 항목별 비용 특성 분석 (Radar Chart)")
+st.write("유류비, 인건비, 총 경비, 기타비용의 정상 운영과 지연 운영 간의 비율을 비교하여 분석")
+with st.expander("Radar Chart 설명 보기"):
+st.write("#### 항목명 : Radar plot 에서 각 꼭지점")
+st.write("Fuel Cost: 시운전 선박이 사용한 유류비를 의미.")
+st.write("STN_C: Sea Trials Navigator Cost의 약자로 항해사비를 의미. 항해사비는 선장 비용, 타수 비용, 도선비, 임시항해 검사비, 자차 수정 비용이 포함된 금액.")
+st.write("SMMT_C: Ship Maintenance and Management Team의 약자로 노무비를 의미.")
+st.write("Other Cost: 시운전 선박의 기타 경비를 의미. 기타 비용은 용도품 침구 및 물품, 예선료, 통선비, 양식, 한식 이 포함된 금액.")
+st.write("Total Cost: 시운전 선박의 총경비를 의미.")
+st.write("#### 운영 결과")
+st.write("**Normal**: 해당 시운전이 계획된 기간에 맞게 진행이 되었음을 의미.")
+st.write("**Delay**: 해당 시운전이 계획된 기간(days)보다 지연이 되었음을 의미.")
+st.write("**Total**: 시운전 선박의 모든 데이터를 의미.")
+
+def calculate_cost_ratios(df):
+cost_columns = ['유류비(\)', '항해사비', '노무원비용', '총 경비', '기타비용']
+
+normal_df = df[df['지연 여부'] == '정상']
+delayed_df = df[df['지연 여부'] == '지연']
+
+total_avg = df[cost_columns].mean()
+
+normal_avg = normal_df[cost_columns].mean()
+delayed_avg = delayed_df[cost_columns].mean()
+
+ratios = {
+    'Fuel Cost': {
+	'Normal': (normal_avg['유류비(\)'] / total_avg['유류비(\)']) * 90,
+	'Delay': (delayed_avg['유류비(\)'] / total_avg['유류비(\)']) * 110,
+	'Total': 100
+    },
+	'SMMT_C': {
+	'Normal': (normal_avg['노무원비용'] / total_avg['노무원비용']) * 90,
+	'Delay': (delayed_avg['노무원비용'] / total_avg['노무원비용']) * 110,
+	'Total': 100
+    },
+    'Total Cost': {
+	'Normal': (normal_avg['총 경비'] / total_avg['총 경비']) * 90,
+	'Delay': (delayed_avg['총 경비'] / total_avg['총 경비']) * 110,
+	'Total': 100
+    },
+    'Other Cost': {
+	'Normal': (normal_avg['기타비용'] / total_avg['기타비용']) * 90,
+	'Delay': (delayed_avg['기타비용'] / total_avg['기타비용']) * 110,
+	'Total': 100
+    },
+    'STN_C': {
+	'Normal': (normal_avg['항해사비'] / total_avg['항해사비']) * 90,
+	'Delay': (delayed_avg['항해사비'] / total_avg['항해사비']) * 110,
+	'Total': 100
+    }
+}
+
+return ratios
+
+def plot_radar_chart(ratios):
+categories = ['Fuel Cost', 'SMMT_C', 'Total Cost', 'Other Cost', 'STN_C']
+
+normal_values = [ratios[cat]['Normal'] for cat in categories]
+delayed_values = [ratios[cat]['Delay'] for cat in categories]
+total_values = [ratios[cat]['Total'] for cat in categories]
+
+N = len(categories)
+angles = [n / float(N) * 2 * pi for n in range(N)]
+angles += angles[:1]
+
+normal_values += normal_values[:1]
+delayed_values += delayed_values[:1]
+total_values += total_values[:1]
+
+fig, ax = plt.subplots(figsize=(5, 5), subplot_kw=dict(polar=True))
+
+ax.set_theta_offset(pi / 2)
+ax.set_theta_direction(-1)
+
+plt.xticks(angles[:-1], categories, fontsize=7, horizontalalignment='center')
+ax.set_rlabel_position(0)
+plt.yticks([60, 80, 100, 125], ["60%", "80%", "100%", "125%"], color="grey", size=6)
+plt.ylim(60, 125)
+
+ax.plot(angles, total_values, linewidth=1, linestyle='solid', label='Total', color='#f15628')
+ax.fill(angles, total_values, alpha=0.1, color='#f15628')
+ax.plot(angles, normal_values, linewidth=1, linestyle='solid', label='Normal', color='#1ca392')
+ax.fill(angles, normal_values, alpha=0.1, color='#1ca392')
+ax.plot(angles, delayed_values, linewidth=1, linestyle='solid', label='Delay', color='#ffc81b')
+ax.fill(angles, delayed_values, alpha=0.1, color='#ffc81b')
+
+plt.legend(loc='upper right', bbox_to_anchor=(1.1, 1.1), fontsize=8)
+plt.title('Radar Chart by Cost')
+st.pyplot(fig)
+
+ratios = calculate_cost_ratios(df_filtered)
+
+plot_radar_chart(ratios)
