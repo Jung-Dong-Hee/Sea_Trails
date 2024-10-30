@@ -37,6 +37,20 @@ Data was generated with careful consideration to reflect realistic scenarios and
 | **MFO**            | The amount of MFO used during the trial operation. (Unit: ℓ)                                         |
 | **선장_투입~노무_안전_투입** | The number of personnel involved in the trial operation. (Unit: Persons)                   |
 
+#### Question : What is "Other cost" and what data columns does it contain?
+#### Answer : Refers to additional expenses incurred during the sea trials. It includes all costs except for "Labor Cost" and "Fuel Cost."
+
+#### Column : "용도품 침구 및 물품", "예선료", "통선비", "양식", "한식"
+
+'용도품 침구 및 물품' : Refers to supplies and bedding items necessary for the navigators during sea trials.
+
+'예선료(Pilotage Fee)' : Pilotage fees are costs associated with hiring a licensed pilot who navigates the vessel through specific waterways, ports, or narrow passages. These fees cover the expertise needed to ensure safe and efficient maneuvering, especially in complex or congested areas, during sea trials and other navigational activities.
+
+'통선비(Tugboat Fee)' : Tugboat fees are expenses incurred for using tugboats to assist the main vessel with docking, undocking, or navigating in confined spaces. Tugboats provide essential support, particularly when the ship lacks sufficient maneuverability or needs additional control during certain parts of the voyage or testing phase.
+
+'양식' : Western-style food consumed by the ship's owner during sea trials.
+'한식' : Korean-style food consumed by the crew members during sea trials.
+
 # Analyze
 
 ## 1. Number of sea trials tests per month
@@ -57,10 +71,10 @@ Analysis of fuel costs, labor costs, other costs, and total costs for normal ope
   </p>
 </figure>
 
-## 3.1 Cost analysis by normal/delayed items
+## 3. Cost analysis by normal/delayed items
 Analysis of total costs, labor costs, and fuel costs for normal, delayed, and total operation of a ship type over time.
 
-Total cost
+### 1.Total cost
 <figure>
   <p align="center">
     <img src="Fig/Total Cost TS.png" alt="Trulli" style="width:80%">
@@ -68,7 +82,7 @@ Total cost
   </p>
 </figure>
 
-Labor cost
+### 2.Labor cost
 <figure>
   <p align="center">
     <img src="Fig/Labor Cost Ts.png" alt="Trulli" style="width:80%">
@@ -76,7 +90,7 @@ Labor cost
   </p>
 </figure>
 
-Fuel cost
+### 3.Fuel cost
 <figure>
   <p align="center">
     <img src="Fig/Fuel Cost Ts.png" alt="Trulli" style="width:80%">
@@ -84,10 +98,77 @@ Fuel cost
   </p>
 </figure>
 
-## 3.2 Cost Forecast(To be added)
-## 3.3 Cause Analysis Report(To be added)
+## 4. Cost Forecast
+We forecast the total expenses for each ship type by predicting the individual cost items. The forecast is displayed in both graph and table formats. To view specific forecast values, you can click on the table.
 
-## 4. Radar Chart
+### 1. Labor cost
+
+<figure>
+  <p align="center">
+    <img src="Fig/Labor cost prediction.png" alt="Trulli" style="width:80%">
+    <figcaption align = "center"></figcaption>
+  </p>
+</figure>
+
+### 2. Other cost
+
+<figure>
+  <p align="center">
+    <img src="Fig/Other cost prediction.png" alt="Trulli" style="width:80%">
+    <figcaption align = "center"></figcaption>
+  </p>
+</figure>
+
+### 3. Fuel cost
+
+<figure>
+  <p align="center">
+    <img src="Fig/Fuel cost prediction.png" alt="Trulli" style="width:80%">
+    <figcaption align = "center"></figcaption>
+  </p>
+</figure>
+
+### For the Fuel Cost Forecast section, the process is divided into two parts:
+
+Oil Price: Based on international commodity prices, the oil price forecast is derived from HFO and MFO price data. This forecast predicts future oil prices independently of year and ship type.
+
+Exchange Rate: The exchange rate forecast uses USD-KRW and EUR-KRW exchange rates from the global financial markets. This prediction estimates future exchange rates independently of year and ship type.
+
+### Part 1 - HFO & MFO cost prediction
+
+<figure>
+  <p align="center">
+    <img src="Fig/HFO MFO cost prediction.png" alt="Trulli" style="width:80%">
+    <figcaption align = "center"></figcaption>
+  </p>
+</figure>
+
+### Part 2 - Dollar & Euro prediciton
+
+<figure>
+  <p align="center">
+    <img src="Fig/HFO MFO cost prediction.png" alt="Trulli" style="width:80%">
+    <figcaption align = "center"></figcaption>
+  </p>
+</figure>
+
+## 5. Cause Analysis Report
+Based on the forecasted costs of sea trials, we analyze the predicted costs for 2025 compared to 2024. Each item represents necessary components for trial operations.
+
+"Labor cost," "Other cost," "Fuel cost"
+
+The ship type can be selected, and the desired month in 2025 can be chosen for viewing. Costs are displayed in a table format, showing the average costs for each item based on 2024 and the predicted costs for 2025 beside them. The rate of increase from the previous year is also shown. Finally, the selected ship type, item, and increase rate are presented as results.
+
+EX) For the "2500TEU_EGCS_1st" ship type, "Other Cost" showed the largest variation, with an increase of 4.90% of the total expenses.
+
+<figure>
+  <p align="center">
+    <img src="Fig/Cause Analysis Report.PNG" alt="Trulli" style="width:80%">
+    <figcaption align = "center"></figcaption>
+  </p>
+</figure>
+
+## 6. Radar Chart
 Analysis by comparing the ratio between normal and delayed operation of fuel costs, sea trials navigator costs, ship maintenance & management team costs, total costs, and other costs.
 
 <figure>
