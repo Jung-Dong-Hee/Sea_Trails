@@ -800,166 +800,168 @@ selected_month_num = int(selected_month.replace('월', ''))
 df_2024 = df_filtered[df_filtered['Date'].dt.year == 2024]
 
 if df_2024.empty:
-st.write("선택한 선종의 2024년 데이터가 없습니다.")
+    st.write("선택한 선종의 2024년 데이터가 없습니다.")
 else:
-average_2024_labor = df_2024['인건비'].mean()
-average_2024_other = df_2024['기타비용'].mean()
-average_2024_fuel = df_2024['유류비(\)'].mean()
+    average_2024_labor = df_2024['인건비'].mean()
+    average_2024_other = df_2024['기타비용'].mean()
+    average_2024_fuel = df_2024['유류비(\)'].mean()
 
-predicted_labor_df['Date'] = pd.to_datetime(predicted_labor_df['Date'], format='%Y-%m')
-labor_cost_2025_row = predicted_labor_df[(predicted_labor_df['Date'].dt.year == 2025) & (predicted_labor_df['Date'].dt.month == selected_month_num)]
-if labor_cost_2025_row.empty:
-    st.write(f"선택한 월의 인건비 예측 데이터가 없습니다.")
-    labor_cost_2025 = None
-else:
-    labor_cost_2025 = labor_cost_2025_row['예측 인건비'].values[0]
+    predicted_labor_df['Date'] = pd.to_datetime(predicted_labor_df['Date'], format='%Y-%m')
+    labor_cost_2025_row = predicted_labor_df[(predicted_labor_df['Date'].dt.year == 2025) & (predicted_labor_df['Date'].dt.month == selected_month_num)]
+    if labor_cost_2025_row.empty:
+        st.write(f"선택한 월의 인건비 예측 데이터가 없습니다.")
+        labor_cost_2025 = None
+    else:
+        labor_cost_2025 = labor_cost_2025_row['예측 인건비'].values[0]
 
 predicted_other_df['Date'] = pd.to_datetime(predicted_other_df['Date'], format='%Y-%m')
 other_cost_2025_row = predicted_other_df[(predicted_other_df['Date'].dt.year == 2025) & (predicted_other_df['Date'].dt.month == selected_month_num)]
 if other_cost_2025_row.empty:
-st.write(f"선택한 월의 기타비용 예측 데이터가 없습니다.")
-other_cost_2025 = None
+    st.write(f"선택한 월의 기타비용 예측 데이터가 없습니다.")
+    other_cost_2025 = None
 else:
-other_cost_2025 = other_cost_2025_row['예측 기타비용'].values[0]
+    other_cost_2025 = other_cost_2025_row['예측 기타비용'].values[0]
 
-predicted_fuel_df['Date'] = pd.to_datetime(predicted_fuel_df['Date'], format='%Y-%m')
-fuel_cost_2025_row = predicted_fuel_df[(predicted_fuel_df['Date'].dt.year == 2025) & (predicted_fuel_df['Date'].dt.month == selected_month_num)]
+predicted_fuel_cost_df['Date'] = pd.to_datetime(predicted_fuel_cost_df['Date'], format='%Y-%m')
+fuel_cost_2025_row = predicted_fuel_cost_df[(predicted_fuel_cost_df['Date'].dt.year == 2025) & (predicted_fuel_cost_df['Date'].dt.month == selected_month_num)]
 if fuel_cost_2025_row.empty:
-st.write(f"선택한 월의 유류비 예측 데이터가 없습니다.")
-fuel_cost_2025 = None
+    st.write(f"선택한 월의 유류비 예측 데이터가 없습니다.")
+    fuel_cost_2025 = None
 else:
-fuel_cost_2025 = fuel_cost_2025_row['예측 유류비'].values[0]
+    fuel_cost_2025 = fuel_cost_2025_row['예측 유류비'].values[0]
 
 if None in [labor_cost_2025, other_cost_2025, fuel_cost_2025]:
-st.write("결과를 표시할 수 없습니다.")
+    st.write("결과를 표시할 수 없습니다.")
 else:
-labor_increase_rate = ((labor_cost_2025 - average_2024_labor) / average_2024_labor * 100) if average_2024_labor != 0 else None
-other_increase_rate = ((other_cost_2025 - average_2024_other) / average_2024_other * 100) if average_2024_other != 0 else None
-fuel_increase_rate = ((fuel_cost_2025 - average_2024_fuel) / average_2024_fuel * 100) if average_2024_fuel != 0 else None
+    labor_increase_rate = ((labor_cost_2025 - average_2024_labor) / average_2024_labor * 100) if average_2024_labor != 0 else None
+    other_increase_rate = ((other_cost_2025 - average_2024_other) / average_2024_other * 100) if average_2024_other != 0 else None
+    fuel_increase_rate = ((fuel_cost_2025 - average_2024_fuel) / average_2024_fuel * 100) if average_2024_fuel != 0 else None
 
-def format_increase_rate(rate):
-    return f"{rate:.2f}%" if rate is not None else "N/A"
+    def format_increase_rate(rate):
+        return f"{rate:.2f}%" if rate is not None else "N/A"
 
-result_df = pd.DataFrame({
-    '항목': ['인건비', '기타 비용', '유류비'],
-    '2024년 평균 비용': [average_2024_labor, average_2024_other, average_2024_fuel],
-    f'2025년 {selected_month} 예측 비용': [labor_cost_2025, other_cost_2025, fuel_cost_2025],
-    '상승률': [format_increase_rate(labor_increase_rate), format_increase_rate(other_increase_rate), format_increase_rate(fuel_increase_rate)]
-})
+    result_df = pd.DataFrame({
+        '항목': ['인건비', '기타 비용', '유류비'],
+        '2024년 평균 비용': [average_2024_labor, average_2024_other, average_2024_fuel],
+        f'2025년 {selected_month} 예측 비용': [labor_cost_2025, other_cost_2025, fuel_cost_2025],
+        '상승률': [format_increase_rate(labor_increase_rate), format_increase_rate(other_increase_rate), format_increase_rate(fuel_increase_rate)]
+    })
 
-def format_currency(value):
-    return f"{int(value):,}원" if not pd.isnull(value) else "N/A"
+    def format_currency(value):
+        return f"{int(value):,}원" if not pd.isnull(value) else "N/A"
 
-result_df['2024년 평균 비용'] = result_df['2024년 평균 비용'].apply(format_currency)
-result_df[f'2025년 {selected_month} 예측 비용'] = result_df[f'2025년 {selected_month} 예측 비용'].apply(format_currency)
+    result_df['2024년 평균 비용'] = result_df['2024년 평균 비용'].apply(format_currency)
+    result_df[f'2025년 {selected_month} 예측 비용'] = result_df[f'2025년 {selected_month} 예측 비용'].apply(format_currency)
 
-st.table(result_df)
+    st.table(result_df)
 
-increase_rates = [labor_increase_rate, other_increase_rate, fuel_increase_rate]
-valid_indices = [i for i, rate in enumerate(increase_rates) if rate is not None]
+    increase_rates = [labor_increase_rate, other_increase_rate, fuel_increase_rate]
+    valid_indices = [i for i, rate in enumerate(increase_rates) if rate is not None]
 
-if not valid_indices:
-    st.write("계산할 수 없습니다.")
-else:
-    max_increase_index = max(valid_indices, key=lambda i: abs(increase_rates[i]))
-    max_increase_rate = increase_rates[max_increase_index]
-    max_increase_item = result_df.loc[max_increase_index, '항목']
+    if not valid_indices:
+        st.write("계산할 수 없습니다.")
+    else:
+        max_increase_index = max(valid_indices, key=lambda i: abs(increase_rates[i]))
+        max_increase_rate = increase_rates[max_increase_index]
+        max_increase_item = result_df.loc[max_increase_index, '항목']
 
-    change_type = '상승' if max_increase_rate >= 0 else '감소'
+        change_type = '상승' if max_increase_rate >= 0 else '감소'
 
-    st.write(f"{ship_type} 선종의 **{max_increase_item}**이(가) 전체 총 경비의 **{abs(max_increase_rate):.2f}% {change_type}**으로 가장 큰 변동을 보인 항목입니다.")
+        st.write(f"{ship_type} 선종의 **{max_increase_item}**이(가) 전체 총 경비의 **{abs(max_increase_rate):.2f}% {change_type}**으로 가장 큰 변동을 보인 항목입니다.")
 
-
+# 항목별 비용 특성 분석 (Radar Chart)
 st.write("### 06. 항목별 비용 특성 분석 (Radar Chart)")
 st.write("유류비, 인건비, 총 경비, 기타비용의 정상 운영과 지연 운영 간의 비율을 비교하여 분석")
 with st.expander("Radar Chart 설명 보기"):
-st.write("#### 항목명 : Radar plot 에서 각 꼭지점")
-st.write("Fuel Cost: 시운전 선박이 사용한 유류비를 의미.")
-st.write("STN_C: Sea Trials Navigator Cost의 약자로 항해사비를 의미. 항해사비는 선장 비용, 타수 비용, 도선비, 임시항해 검사비, 자차 수정 비용이 포함된 금액.")
-st.write("SMMT_C: Ship Maintenance and Management Team의 약자로 노무비를 의미.")
-st.write("Other Cost: 시운전 선박의 기타 경비를 의미. 기타 비용은 용도품 침구 및 물품, 예선료, 통선비, 양식, 한식 이 포함된 금액.")
-st.write("Total Cost: 시운전 선박의 총경비를 의미.")
-st.write("#### 운영 결과")
-st.write("**Normal**: 해당 시운전이 계획된 기간에 맞게 진행이 되었음을 의미.")
-st.write("**Delay**: 해당 시운전이 계획된 기간(days)보다 지연이 되었음을 의미.")
-st.write("**Total**: 시운전 선박의 모든 데이터를 의미.")
+    st.write("#### 항목명 : Radar plot 에서 각 꼭지점")
+    st.write("Fuel Cost: 시운전 선박이 사용한 유류비를 의미.")
+    st.write("STN_C: Sea Trials Navigator Cost의 약자로 항해사비를 의미. 항해사비는 선장 비용, 타수 비용, 도선비, 임시항해 검사비, 자차 수정 비용이 포함된 금액.")
+    st.write("SMMT_C: Ship Maintenance and Management Team의 약자로 노무비를 의미.")
+    st.write("Other Cost: 시운전 선박의 기타 경비를 의미. 기타 비용은 용도품 침구 및 물품, 예선료, 통선비, 양식, 한식 이 포함된 금액.")
+    st.write("Total Cost: 시운전 선박의 총경비를 의미.")
+    st.write("#### 운영 결과")
+    st.write("**Normal**: 해당 시운전이 계획된 기간에 맞게 진행이 되었음을 의미.")
+    st.write("**Delay**: 해당 시운전이 계획된 기간(days)보다 지연이 되었음을 의미.")
+    st.write("**Total**: 시운전 선박의 모든 데이터를 의미.")
 
 def calculate_cost_ratios(df):
-cost_columns = ['유류비(\)', '항해사비', '노무원비용', '총 경비', '기타비용']
+    cost_columns = ['유류비(\)', '항해사비', '노무원비용', '총 경비', '기타비용']
 
-normal_df = df[df['지연 여부'] == '정상']
-delayed_df = df[df['지연 여부'] == '지연']
+    normal_df = df[df['지연 여부'] == '정상']
+    delayed_df = df[df['지연 여부'] == '지연']
 
-total_avg = df[cost_columns].mean()
+    total_avg = df[cost_columns].mean()
 
-normal_avg = normal_df[cost_columns].mean()
-delayed_avg = delayed_df[cost_columns].mean()
+    normal_avg = normal_df[cost_columns].mean()
+    delayed_avg = delayed_df[cost_columns].mean()
 
-ratios = {
-    'Fuel Cost': {
-	'Normal': (normal_avg['유류비(\)'] / total_avg['유류비(\)']) * 90,
-	'Delay': (delayed_avg['유류비(\)'] / total_avg['유류비(\)']) * 110,
-	'Total': 100
-    },
-	'SMMT_C': {
-	'Normal': (normal_avg['노무원비용'] / total_avg['노무원비용']) * 90,
-	'Delay': (delayed_avg['노무원비용'] / total_avg['노무원비용']) * 110,
-	'Total': 100
-    },
-    'Total Cost': {
-	'Normal': (normal_avg['총 경비'] / total_avg['총 경비']) * 90,
-	'Delay': (delayed_avg['총 경비'] / total_avg['총 경비']) * 110,
-	'Total': 100
-    },
-    'Other Cost': {
-	'Normal': (normal_avg['기타비용'] / total_avg['기타비용']) * 90,
-	'Delay': (delayed_avg['기타비용'] / total_avg['기타비용']) * 110,
-	'Total': 100
-    },
-    'STN_C': {
-	'Normal': (normal_avg['항해사비'] / total_avg['항해사비']) * 90,
-	'Delay': (delayed_avg['항해사비'] / total_avg['항해사비']) * 110,
-	'Total': 100
+    ratios = {
+        'Fuel Cost': {
+            'Normal': (normal_avg['유류비(\)'] / total_avg['유류비(\)']) * 90,
+            'Delay': (delayed_avg['유류비(\)'] / total_avg['유류비(\)']) * 110,
+            'Total': 100
+        },
+        'SMMT_C': {
+            'Normal': (normal_avg['노무원비용'] / total_avg['노무원비용']) * 90,
+            'Delay': (delayed_avg['노무원비용'] / total_avg['노무원비용']) * 110,
+            'Total': 100
+        },
+        'Total Cost': {
+            'Normal': (normal_avg['총 경비'] / total_avg['총 경비']) * 90,
+            'Delay': (delayed_avg['총 경비'] / total_avg['총 경비']) * 110,
+            'Total': 100
+        },
+        'Other Cost': {
+            'Normal': (normal_avg['기타비용'] / total_avg['기타비용']) * 90,
+            'Delay': (delayed_avg['기타비용'] / total_avg['기타비용']) * 110,
+            'Total': 100
+        },
+        'STN_C': {
+            'Normal': (normal_avg['항해사비'] / total_avg['항해사비']) * 90,
+            'Delay': (delayed_avg['항해사비'] / total_avg['항해사비']) * 110,
+            'Total': 100
+        }
     }
-}
 
-return ratios
+    return ratios
 
 def plot_radar_chart(ratios):
-categories = ['Fuel Cost', 'SMMT_C', 'Total Cost', 'Other Cost', 'STN_C']
+    categories = ['Fuel Cost', 'SMMT_C', 'Total Cost', 'Other Cost', 'STN_C']
 
-normal_values = [ratios[cat]['Normal'] for cat in categories]
-delayed_values = [ratios[cat]['Delay'] for cat in categories]
-total_values = [ratios[cat]['Total'] for cat in categories]
+    normal_values = [ratios[cat]['Normal'] for cat in categories]
+    delayed_values = [ratios[cat]['Delay'] for cat in categories]
+    total_values = [ratios[cat]['Total'] for cat in categories]
 
-N = len(categories)
-angles = [n / float(N) * 2 * pi for n in range(N)]
-angles += angles[:1]
+    N = len(categories)
+    angles = [n / float(N) * 2 * pi for n in range(N)]
+    angles += angles[:1]
 
-normal_values += normal_values[:1]
-delayed_values += delayed_values[:1]
-total_values += total_values[:1]
+    normal_values += normal_values[:1]
+    delayed_values += delayed_values[:1]
+    total_values += total_values[:1]
 
-fig, ax = plt.subplots(figsize=(5, 5), subplot_kw=dict(polar=True))
+    fig, ax = plt.subplots(figsize=(5, 5), subplot_kw=dict(polar=True))
 
-ax.set_theta_offset(pi / 2)
-ax.set_theta_direction(-1)
+    ax.set_theta_offset(pi / 2)
+    ax.set_theta_direction(-1)
 
-plt.xticks(angles[:-1], categories, fontsize=7, horizontalalignment='center')
-ax.set_rlabel_position(0)
-plt.yticks([60, 80, 100, 125], ["60%", "80%", "100%", "125%"], color="grey", size=6)
-plt.ylim(60, 125)
+    plt.xticks(angles[:-1], categories, fontsize=7, horizontalalignment='center')
+    ax.set_rlabel_position(0)
+    plt.yticks([60, 80, 100, 125], ["60%", "80%", "100%", "125%"], color="grey", size=6)
+    plt.ylim(60, 125)
 
-ax.plot(angles, total_values, linewidth=1, linestyle='solid', label='Total', color='#f15628')
-ax.fill(angles, total_values, alpha=0.1, color='#f15628')
-ax.plot(angles, normal_values, linewidth=1, linestyle='solid', label='Normal', color='#1ca392')
-ax.fill(angles, normal_values, alpha=0.1, color='#1ca392')
-ax.plot(angles, delayed_values, linewidth=1, linestyle='solid', label='Delay', color='#ffc81b')
-ax.fill(angles, delayed_values, alpha=0.1, color='#ffc81b')
+    ax.plot(angles, total_values, linewidth=1, linestyle='solid', label='Total', color='#f15628')
+    ax.fill(angles, total_values, alpha=0.1, color='#f15628')
+    ax.plot(angles, normal_values, linewidth=1, linestyle='solid', label='Normal', color='#1ca392')
+    ax.fill(angles, normal_values, alpha=0.1, color='#1ca392')
+    ax.plot(angles, delayed_values, linewidth=1, linestyle='solid', label='Delay', color='#ffc81b')
+    ax.fill(angles, delayed_values, alpha=0.1, color='#ffc81b')
 
-plt.legend(loc='upper right', bbox_to_anchor=(1.1, 1.1), fontsize=8)
-plt.title('Radar Chart by Cost')
-st.pyplot(fig)
+    plt.legend(loc='upper right', bbox_to_anchor=(1.1, 1.1), fontsize=8)
+	
+    plt.title('Radar Chart by Cost')
+
+    st.pyplot(fig)
 
 ratios = calculate_cost_ratios(df_filtered)
 
