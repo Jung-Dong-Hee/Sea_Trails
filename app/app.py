@@ -151,7 +151,7 @@ else:
     width = 0.2
 
     for i, status in enumerate(statuses):
-        ax.bar(x + i * width - width, data[status], width, label=status_labels[status], color={'정상': '#f15628', '지연': '#ffc81b', '전체': '#1ca392'}[status])
+        ax.bar(x + i * width - width, data[status], width, label=status_labels[status], color={'정상': '#1ca392', '지연': '#ffc81b', '전체': '#f15628'}[status])
 
     ax.set_ylabel('Cost (in millions)')
     ax.set_title(f'Average Costs by Operation Status - {ship_type}')
@@ -503,7 +503,7 @@ plt.tight_layout()
 
 st.pyplot(fig)
 
-st.write("유류비 예측 Part - 유가 및 환율 예측")
+st.write("#### 유류비 예측 Part - 유가 및 환율 예측")
 
 col1, col2 = st.columns(2)
 
