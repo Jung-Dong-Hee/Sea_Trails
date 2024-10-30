@@ -399,7 +399,7 @@ else:
         st.table(predicted_other_df.reset_index(drop=True))
 
 # 유류비 예측
-st.write("###3. 유류비 예측")
+st.write("### 3. 유류비 예측")
 
 with st.expander("유류비 예측 파트 설명 보기"):
     st.write("**설명**: 유류비 예측 파트의 경우 두 가지 파트로 나누어서 유류비를 예측하는 과정을 보여줍니다.")
