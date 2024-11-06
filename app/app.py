@@ -8,12 +8,12 @@ from sklearn.linear_model import LinearRegression
 import matplotlib.dates as mdates
 from matplotlib.collections import LineCollection
 
-st.set_page_config(page_title="Sea Trials - Streamlit", layout="centered", "primaryColor = "#FF4B4B")
+st.set_page_config(page_title="Sea Trials - Streamlit", layout="centered")
 
-# primaryColor = "#FF4B4B"            
-# backgroundColor = "#ebf1f1"          
-# secondaryBackgroundColor = "#0d6efd" 
-# textColor = "#494949"                
+primaryColor = "#FF4B4B"            
+backgroundColor = "#ebf1f1"          
+secondaryBackgroundColor = "#0d6efd" 
+textColor = "#494949"                
 
 custom_css = f"""
 <style>
