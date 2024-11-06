@@ -9,6 +9,8 @@ import matplotlib.dates as mdates
 from matplotlib.collections import LineCollection
 
 st.set_page_config(
+	page_title="Sea Trials - Streamlit",
+	layout="centered"
     theme={
         "primaryColor": "#FF4B4B",
         "backgroundColor": "#EBF1F1",
@@ -19,7 +21,7 @@ st.set_page_config(
 
 plt.style.use('ggplot')
 
-st.set_page_config(page_title="Sea Trials - Streamlit", layout="centered")
+#st.set_page_config(page_title="Sea Trials - Streamlit", layout="centered")
 
 st.title("해상 시운전 비용 분석")
 
