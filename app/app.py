@@ -8,6 +8,8 @@ from sklearn.linear_model import LinearRegression
 import matplotlib.dates as mdates
 from matplotlib.collections import LineCollection
 
+st.set_page_config(page_title="Sea Trials - Streamlit", layout="centered")
+
 primaryColor = "#FF4B4B"            
 backgroundColor = "#EBF1F1"          
 secondaryBackgroundColor = "#0D6EFD" 
@@ -42,7 +44,7 @@ st.markdown(custom_css, unsafe_allow_html=True)
 
 plt.style.use('ggplot')
 
-st.set_page_config(page_title="Sea Trials - Streamlit", layout="centered")
+# st.set_page_config(page_title="Sea Trials - Streamlit", layout="centered")
 
 st.title("해상 시운전 비용 분석")
 
