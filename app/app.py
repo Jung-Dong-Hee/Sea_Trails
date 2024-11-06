@@ -10,7 +10,7 @@ from matplotlib.collections import LineCollection
 
 st.set_page_config(
 	page_title="Sea Trials - Streamlit",
-	layout="centered"
+	layout="centered",
     theme={
         "primaryColor": "#FF4B4B",
         "backgroundColor": "#EBF1F1",
