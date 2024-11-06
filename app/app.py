@@ -8,20 +8,41 @@ from sklearn.linear_model import LinearRegression
 import matplotlib.dates as mdates
 from matplotlib.collections import LineCollection
 
-st.set_page_config(
-	page_title="Sea Trials - Streamlit",
-	layout="centered",
-    theme={
-        "primaryColor": "#FF4B4B",
-        "backgroundColor": "#EBF1F1",
-        "secondaryBackgroundColor": "#0D6EFD",
-        "textColor": "#494949"
-    }
-)
+primaryColor = "#FF4B4B"            
+backgroundColor = "#EBF1F1"          
+secondaryBackgroundColor = "#0D6EFD" 
+textColor = "#494949"                
+
+custom_css = f"""
+<style>
+/* 전체 배경 색상 */
+.stApp {{
+    background-color: {backgroundColor};
+}}
+
+/* 사이드바 배경 색상 */
+div[data-testid="stSidebar"] {{
+    background-color: {secondaryBackgroundColor};
+}}
+
+/* 주요 색상 (버튼 등) */
+.css-1cpxqw2 .e1ewe7hr1 {{
+    background-color: {primaryColor};
+    color: {textColor};
+}}
+
+/* 텍스트 색상 */
+body, p, div {{
+    color: {textColor};
+}}
+</style>
+"""
+
+st.markdown(custom_css, unsafe_allow_html=True)
 
 plt.style.use('ggplot')
 
-#st.set_page_config(page_title="Sea Trials - Streamlit", layout="centered")
+st.set_page_config(page_title="Sea Trials - Streamlit", layout="centered")
 
 st.title("해상 시운전 비용 분석")
 
