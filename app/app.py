@@ -8,6 +8,15 @@ from sklearn.linear_model import LinearRegression
 import matplotlib.dates as mdates
 from matplotlib.collections import LineCollection
 
+st.set_page_config(
+    theme={
+        "primaryColor": "#FF4B4B",
+        "backgroundColor": "#EBF1F1",
+        "secondaryBackgroundColor": "#0D6EFD",
+        "textColor": "#494949"
+    }
+)
+
 plt.style.use('ggplot')
 
 st.set_page_config(page_title="Sea Trials - Streamlit", layout="centered")
