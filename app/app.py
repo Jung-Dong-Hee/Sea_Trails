@@ -11,8 +11,8 @@ from matplotlib.collections import LineCollection
 st.set_page_config(page_title="Sea Trials - Streamlit", layout="centered")
 
 primaryColor = "#494949"            
-backgroundColor = "#0d6efd"          
-secondaryBackgroundColor = "#ebf1f1" 
+backgroundColor = "#ebf1f1"          
+secondaryBackgroundColor = "#0d6efd" 
 textColor = "#494949"                
 
 custom_css = f"""
