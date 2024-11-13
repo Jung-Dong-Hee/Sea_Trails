@@ -213,7 +213,7 @@ else:
         st.table(df_table)
 
     # 정상/지연 항목별 비용 분석
-    st.write("### 03. 정상/지연 항목별 비용 분석")
+    st.markdown('<p style="font-size: 30px; color:#0d6efd;"> 03. 정상/지연 항목별 비용 분석</p>', unsafe_allow_html=True)
     st.write("선종의 정상 운영, 지연 운영, Total 운영의 총 경비, 인건비, 유류비를 시간의 흐름에 따른 분석")
     with st.expander("정상/지연 항목별 비용 분석 설명 보기"):
         st.write("#### 항목명")
