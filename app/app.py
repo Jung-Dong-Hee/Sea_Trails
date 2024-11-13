@@ -42,7 +42,7 @@ body, p, div {{
 
 st.markdown(custom_css, unsafe_allow_html=True)
 
-plt.style.use('ggplot')
+# plt.style.use('ggplot')
 
 st.title("해상 시운전 비용 분석")
 
@@ -110,6 +110,7 @@ else:
     total_counts = normal_counts + delayed_counts
 
     fig, ax = plt.subplots(figsize=(12, 6))
+    ax.set_facecolor('#F8F9FA')
     ax.bar(status_counts.index.astype(str), normal_counts, label='Normal', color='#1ca392')
     ax.bar(status_counts.index.astype(str), delayed_counts, bottom=normal_counts, label='Delay', color='#ffc81b')
 
@@ -178,6 +179,7 @@ else:
         data[status] = [convert_to_millions(avg_costs[cost_type]) for cost_type in cost_types]
 
     fig, ax = plt.subplots(figsize=(12, 6))
+    ax.set_facecolor('#F8F9FA')
     labels = [cost_type_labels[cost_type] for cost_type in cost_types]
     x = np.arange(len(labels))
     width = 0.2
@@ -236,6 +238,7 @@ else:
     df_total = df_filtered
 
     fig, ax = plt.subplots(figsize=(12, 6))
+    ax.set_facecolor('#F8F9FA')	
     ax.plot(df_total.groupby('Date')['총 경비'].mean(), label='Total', linestyle='-', linewidth=2, color='#f15628')
     ax.plot(df_normal.groupby('Date')['총 경비'].mean(), label='Normal', linestyle='-', linewidth=2, color='#1ca392')
     ax.plot(df_delay.groupby('Date')['총 경비'].mean(), label='Delay', linestyle='-', linewidth=2, color='#ffc81b')
@@ -249,6 +252,7 @@ else:
     st.pyplot(fig)
 
     fig, ax = plt.subplots(figsize=(12, 6))
+    ax.set_facecolor('#F8F9FA')
     ax.plot(df_total.groupby('Date')['인건비'].mean(), label='Total', linestyle='-', linewidth=2, color='#f15628')
     ax.plot(df_normal.groupby('Date')['인건비'].mean(), label='Normal', linestyle='-', linewidth=2, color='#1ca392')
     ax.plot(df_delay.groupby('Date')['인건비'].mean(), label='Delay', linestyle='-', linewidth=2, color='#ffc81b')
@@ -262,6 +266,7 @@ else:
     st.pyplot(fig)
 
     fig, ax = plt.subplots(figsize=(12, 6))
+    ax.set_facecolor('#F8F9FA')
     ax.plot(df_total.groupby('Date')['유류비(\)'].mean(), label='Total', linestyle='-', linewidth=2, color='#f15628')
     ax.plot(df_normal.groupby('Date')['유류비(\)'].mean(), label='Normal', linestyle='-', linewidth=2, color='#1ca392')
     ax.plot(df_delay.groupby('Date')['유류비(\)'].mean(), label='Delay', linestyle='-', linewidth=2, color='#ffc81b')
@@ -305,6 +310,7 @@ else:
     combined_labor_cost_df.sort_values('Date', inplace=True)
 
     fig, ax = plt.subplots(figsize=(12, 6))
+    ax.set_facecolor('#F8F9FA')
 
     dates = mdates.date2num(combined_labor_cost_df['Date'])
     costs = combined_labor_cost_df['인건비'].values
@@ -381,6 +387,7 @@ else:
     combined_other_cost_df.sort_values('Date', inplace=True)
 
     fig, ax = plt.subplots(figsize=(12, 6))
+    ax.set_facecolor('#F8F9FA')
 
     dates = mdates.date2num(combined_other_cost_df['Date'])
     costs = combined_other_cost_df['기타비용'].values
@@ -494,6 +501,7 @@ combined_fuel_cost_df = pd.concat([
 combined_fuel_cost_df.sort_values('Date', inplace=True)
 
 fig, ax = plt.subplots(figsize=(12, 6))
+ax.set_facecolor('#F8F9FA')
 
 dates = mdates.date2num(combined_fuel_cost_df['Date'])
 costs = combined_fuel_cost_df['유류비'].values
@@ -589,6 +597,7 @@ with col1:
     combined_mfo_df.sort_values('Date', inplace=True)
 
     fig1, ax1 = plt.subplots(figsize=(6, 4))
+    ax1.set_facecolor('#F8F9FA')	
 
     dates_hfo = mdates.date2num(combined_hfo_df['Date'])
     prices_hfo = combined_hfo_df['HFO 단가(100L)'].values
@@ -679,7 +688,8 @@ with col2:
     combined_dollar_df.sort_values('Date', inplace=True)
     combined_euro_df.sort_values('Date', inplace=True)
 
-    fig2, ax2 = plt.subplots(figsize=(6, 4)) 
+    fig2, ax2 = plt.subplots(figsize=(6, 4))
+    ax2.set_facecolor('#F8F9FA')
 
     dates_dollar = mdates.date2num(combined_dollar_df['Date'])
     rates_dollar = combined_dollar_df['Dollar'].values
@@ -771,6 +781,7 @@ future_dates_df[['Date', '총 경비']]
 combined_total_cost_df.sort_values('Date', inplace=True)
 
 fig, ax = plt.subplots(figsize=(12, 6))
+ax.set_facecolor('#F8F9FA')
 
 dates = mdates.date2num(combined_total_cost_df['Date'])
 costs = combined_total_cost_df['총 경비'].values
