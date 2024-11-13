@@ -549,7 +549,7 @@ col1, col2 = st.columns(2)
 
 # 유가 예측
 with col1:
-    st.markdown('<p style="font-size: 20px; color:#0d6efd;"> 유가 예측</p>', unsafe_allow_html=True)
+    st.markdown('<p style="font-size: 20px;"> 유가 예측</p>', unsafe_allow_html=True)
 
     fuel_price_df = pd.read_excel('app/연도별 유류비.xlsx')
 
@@ -643,7 +643,7 @@ with col1:
 
 # 환율 예측
 with col2:
-    st.markdown('<p style="font-size: 20px; color:#0d6efd;"> 환율 예측</p>', unsafe_allow_html=True)
+    st.markdown('<p style="font-size: 20px;"> 환율 예측</p>', unsafe_allow_html=True)
 	
     exchange_rate_df = pd.read_excel('app/연도별 환율.xlsx')
 
@@ -984,7 +984,8 @@ def plot_radar_chart(ratios):
     total_values += total_values[:1]
 
     fig, ax = plt.subplots(figsize=(5, 5), subplot_kw=dict(polar=True))
-
+    fig.patch.set_facecolor('#ebf1f1')
+	
     ax.set_theta_offset(pi / 2)
     ax.set_theta_direction(-1)
 
