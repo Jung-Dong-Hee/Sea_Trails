@@ -88,14 +88,14 @@ with st.expander("데이터 설명 보기"):
     st.write("**MFO** : 시운전에서 사용한 MFO의 양. (단위: ℓ )")
     st.write("**선장_투입~노무_안전_투입**: 시운전에 참여한 해당 인원수. (단위: 명)")
 
-st.write("### :#0d6efd[데이터 테이블]")
+st.markdown('<p style="font-size: 30px; color:#0d6efd;">데이터 테이블</p>', unsafe_allow_html=True)
 st.dataframe(df_filtered)
 if df_filtered.empty:
     st.write("선택한 기간 및 선박 유형에 대해 사용 가능한 데이터가 없습니다.")
 else:
 
     # 시운전 테스트 횟수 분석
-    st.write("### 01. 월별 해상 시운전 테스트 횟수")
+    st.markdown('<p style="font-size: 30px; color:#0d6efd;">01. 월별 해상 시운전 테스트 횟수</p>', unsafe_allow_html=True)
     st.write("정상 운영, 지연 운영 월별 시운전 횟수를 분석")
     with st.expander("정상/지연 항목별 비용 분석 설명 보기"):
         st.write("**Normal**: 해당 시운전이 계획된 기간에 맞게 진행이 되었음을 의미.")
@@ -144,7 +144,7 @@ else:
             st.table(count_data)
 
     # 항목별 비용 분석
-    st.write("### 02. 항목별 비용 분석")
+    st.markdown('<p style="font-size: 30px; color:#0d6efd;"> 02. 항목별 비용 분석</p>', unsafe_allow_html=True)
     st.write("선종의 정상 운영, 지연 운영, Total 운영의 유류비, 인건비, 기타 경비, 총 경비 분석")
     with st.expander("항목별 비용 분석 설명 보기"):
         st.write("#### 항목명")
@@ -275,11 +275,11 @@ else:
     st.pyplot(fig)
 
    # 총 경비 예측
-    st.write("### 04. 총 경비 예측")
+    st.markdown('<p style="font-size: 30px; color:#0d6efd;"> 04. 총 경비 예측</p>', unsafe_allow_html=True)
     st.write("선종의 총 경비를 예측합니다. 총 경비를 예측하기 위해 각각의 항목들을 예측합니다.")
 
     # 인건비 예측
-    st.write("#### 1. 인건비 예측")
+    st.markdown('<p style="font-size: 25px; color:#0d6efd;"> 1. 인건비 예측</p>', unsafe_allow_html=True)
 
     labor_cost_df = df_filtered.groupby('Date')['인건비'].mean().reset_index()
     labor_cost_df['Date'] = pd.to_datetime(labor_cost_df['Date'])
@@ -354,7 +354,7 @@ else:
         st.table(predicted_labor_df.reset_index(drop=True))
 
     # 기타 비용 예측
-    st.write("#### 2. 기타 비용 예측")
+    st.markdown('<p style="font-size: 25px; color:#0d6efd;"> 2. 기타 비용 예측</p>', unsafe_allow_html=True)
 
     other_cost_df = df_filtered.groupby('Date')['기타비용'].mean().reset_index()
     other_cost_df['Date'] = pd.to_datetime(other_cost_df['Date'])
@@ -431,7 +431,7 @@ else:
         st.table(predicted_other_df.reset_index(drop=True))
 
 # 유류비 예측
-st.write("### 3. 유류비 예측")
+st.markdown('<p style="font-size: 25px; color:#0d6efd;"> 3. 유류비 예측</p>', unsafe_allow_html=True)
 
 with st.expander("유류비 예측 파트 설명 보기"):
     st.write("**설명**: 유류비 예측 파트의 경우 두 가지 파트로 나누어서 유류비를 예측하는 과정을 보여줍니다.")
@@ -535,13 +535,13 @@ plt.tight_layout()
 
 st.pyplot(fig)
 
-st.write("#### 유류비 예측 Part - 유가 및 환율 예측")
+st.markdown('<p style="font-size: 25px; color:#0d6efd;"> 유류비 예측 Part - 유가 및 환율 예측</p>', unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
 
 # 유가 예측
 with col1:
-    st.write("##### 유가 예측")
+    st.markdown('<p style="font-size: 20px; color:#0d6efd;"> 유가 예측</p>', unsafe_allow_html=True)
 
     fuel_price_df = pd.read_excel('app/연도별 유류비.xlsx')
 
@@ -634,7 +634,7 @@ with col1:
 
 # 환율 예측
 with col2:
-    st.write("##### 환율 예측")
+    st.markdown('<p style="font-size: 20px; color:#0d6efd;"> 환율 예측</p>', unsafe_allow_html=True)
 	
     exchange_rate_df = pd.read_excel('app/연도별 환율.xlsx')
 
@@ -742,7 +742,7 @@ with st.expander("예측 결과 테이블 보기"):
     st.table(combined_predicted_df.reset_index(drop=True))
 
 # 총 경비 예측
-st.write("#### 4. 총 경비 예측")
+st.markdown('<p style="font-size: 20px; color:#0d6efd;"> 4. 총 경비 예측</p>', unsafe_allow_html=True)
 
 total_cost_df = df_filtered.groupby('Date')['총 경비'].mean().reset_index()
 total_cost_df['Date'] = pd.to_datetime(total_cost_df['Date'])
@@ -821,7 +821,7 @@ with st.expander("총 경비 예측 결과 테이블 보기"):
 	st.table(predicted_total_cost_df_2025.reset_index(drop=True))
 
 # 원인 분석
-st.write("### 05. 원인 분석")
+st.markdown('<p style="font-size: 30px; color:#0d6efd;"> 05. 원인 분석</p>', unsafe_allow_html=True)
 st.write("#### 2024년 평균 대비 2025년의 시운전 예측 비용을 원인 분석합니다.")
 
 months = [f"{i}월" for i in range(1, 13)]
@@ -902,7 +902,7 @@ else:
         st.write(f"{ship_type} 선종의 **{max_increase_item}**이(가) 전체 총 경비의 **{abs(max_increase_rate):.2f}% {change_type}**으로 가장 큰 변동을 보인 항목입니다.")
 
 # 항목별 비용 특성 분석 (Radar Chart)
-st.write("### 06. 항목별 비용 특성 분석 (Radar Chart)")
+st.markdown('<p style="font-size: 30px; color:#0d6efd;"> 06. 항목별 비용 특성 분석 (Radar Chart)</p>', unsafe_allow_html=True)
 st.write("유류비, 인건비, 총 경비, 기타비용의 정상 운영과 지연 운영 간의 비율을 비교하여 분석")
 with st.expander("Radar Chart 설명 보기"):
     st.write("#### 항목명 : Radar plot 에서 각 꼭지점")
