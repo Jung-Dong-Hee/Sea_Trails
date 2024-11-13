@@ -88,7 +88,7 @@ with st.expander("데이터 설명 보기"):
     st.write("**MFO** : 시운전에서 사용한 MFO의 양. (단위: ℓ )")
     st.write("**선장_투입~노무_안전_투입**: 시운전에 참여한 해당 인원수. (단위: 명)")
 
-st.write("### #0d6efd[데이터 테이블]")
+st.write("### :#0d6efd[데이터 테이블]")
 st.dataframe(df_filtered)
 if df_filtered.empty:
     st.write("선택한 기간 및 선박 유형에 대해 사용 가능한 데이터가 없습니다.")
