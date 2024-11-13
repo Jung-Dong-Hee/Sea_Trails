@@ -543,7 +543,7 @@ plt.tight_layout()
 
 st.pyplot(fig)
 
-st.markdown('<p style="font-size: 25px; color:#0d6efd;"> 유류비 예측 Part - 유가 및 환율 예측</p>', unsafe_allow_html=True)
+st.markdown('<p style="font-size: 25px;"> 유류비 예측 Part - 유가 및 환율 예측</p>', unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
 
