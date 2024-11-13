@@ -742,7 +742,7 @@ with st.expander("예측 결과 테이블 보기"):
     st.table(combined_predicted_df.reset_index(drop=True))
 
 # 총 경비 예측
-st.markdown('<p style="font-size: 20px; color:#0d6efd;"> 4. 총 경비 예측</p>', unsafe_allow_html=True)
+st.markdown('<p style="font-size: 25px; color:#0d6efd;"> 4. 총 경비 예측</p>', unsafe_allow_html=True)
 
 total_cost_df = df_filtered.groupby('Date')['총 경비'].mean().reset_index()
 total_cost_df['Date'] = pd.to_datetime(total_cost_df['Date'])
